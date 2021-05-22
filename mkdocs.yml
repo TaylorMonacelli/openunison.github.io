@@ -1,0 +1,7 @@
+site_name: OpenUnison Orchestra
+theme: 
+  name: material
+  logo: assets/ts-logo-white.png
+  favicon: 'assets/favicon.ico'
+extra_css:
+  - stylesheets/extra.css
