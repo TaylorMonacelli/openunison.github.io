@@ -1,17 +1,10 @@
-# Welcome to MkDocs
+# Access Portal for Kubernetes
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+OpenUnison is the an access portal for your Kubernetes deployments.  You can use it manage access to a single cluster or for
+all of your clusters.  Using OpenUnison you your Active Directory groups, or Okta groups, in your RBAC bindings.  With OpenUnison:
 
-## Commands
+* Authentication for `kubectl` using the `oulogin` plugin or with a generated `kubectl` command from a browser
+* Secure access to the dashboard
+* SSO for other applications in your cluster, such as Kiali and Grafana
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+*animated gif of logging in*
