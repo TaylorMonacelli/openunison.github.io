@@ -1,15 +1,18 @@
 # Monitoring OpenUnison with Prometheus
 
-All of the Orchestra portals in https://github.com/OpenUnison have a `/metrics` endpoint that exposes all of the built in Java metrics from the prometheus simple client as well as the number of open sessions.  This endpoint is secured as OpenUnison is part of security and you don't want to leak information about your security systems.  By default, the service account for the Kube Prometheus project (https://github.com/coreos/kube-prometheus) is authorized but that can be changed.
+OpenUnison has a `/metrics` endpoint that exposes all of the built in Java metrics from the prometheus simple client as well as the number of open sessions.  This endpoint is secured as OpenUnison is part of security and you don't want to leak information about your security systems.  By default, the service account for the Kube Prometheus project (https://github.com/coreos/kube-prometheus) is authorized but that can be changed.
 
-First, update the `orchestra` `openunison` object in the `openunison` namespace (`kubectl edit openunison orchestrra -n openunison`), updating 
+Update your values.yaml by adding `PROMETHEUS_SERVICE_ACCOUNT` to the `openunison.non_secret_data` object with the name of the `ServiceAccount`
+you want to authorize access for:
 
 ```
-  - name: PROMETHEUS_SERVICE_ACCOUNT
-    value: system:serviceaccount:monitoring:prometheus-k8s
+openunison:
+  replicas: 1
+  non_secret_data:
+    PROMETHEUS_SERVICE_ACCOUNT: system:serviceaccount:monitoring:prometheus-k8s
 ```
 
-to the service account you want to authorize.  Next, create an RBAC role and binding to allow the monitoring stack to query the `openunison-orchestra` `Service`:
+Next, create an RBAC role and binding to allow the monitoring stack to query the `openunison-orchestra` `Service`:
 
 ```
 apiVersion: rbac.authorization.k8s.io/v1
