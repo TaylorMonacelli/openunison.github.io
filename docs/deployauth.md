@@ -555,9 +555,20 @@ openunison:
   html:
     image: docker.lab.tremolo.dev/nginx
   enable_provisioning: false
+  az_groups: []
 ```
 
-Detailed configuration options:
+#### Authorizing Access To Your Cluster
+
+The default implementation of OpenUnison authorizes anyone to authenticate to your cluster and leaves authorization to your RBAC objects.  This
+may not be the desired behavior if you know that only users in a certain group should have access to a cluster at all.  For example, if a
+cluster was built for the payments team, then develoeprs on the marketing application shouldn't have access to your cluster at all.
+
+To authorize access to the portal, and your cluster, add the authorized groups to `openunison.az_groups` in your values.yaml.  The group names
+will be the same as how you would specify them in an RBAC binding. 
+
+
+#### Detailed configuration options:
 
 | Property | Description |
 | -------- | ----------- |
@@ -566,3 +577,4 @@ Detailed configuration options:
 | openunison.secrets | Add additional keys from the `orchestra-secrets-source` `Secret` |
 | openunison.html.image | A custom NGINX image for the HTML frontend for OpenUnison's apis. |
 | openunison.enable_provisioning | If `true`, enables openunison's provisioning and audit database. |
+| openunison.az_groups | List of groups to authorize access for this cluster |
