@@ -59,7 +59,7 @@ Get the latest default values.yaml and customize it.  We're not covering the det
 [authentication source](#choosing-an-identity-source) and configure accordingly.
 
 If you're deploying to a managed cluster, you'll need to enable imperonation to enable authentication by changing `enable_imperonation` 
-to `true`.  Read the details in the [Impersonation](#impersonation) section.
+to `true`.  Read the details in the [Managed Clusters](#managed-clusters) section.
 
 **Install the orchestra helm chart**
 
@@ -370,7 +370,7 @@ your RBAC bindings.
 
 ## Integrating Your Kubernetes Cluster
 
-If you've enabled [impersonation](#impersonation), you do **not** need to follow the instructions in this section.
+If you're running on a [managed cluster](#managed-clusters) such as EKS, AKS, or GKE, you do **not** need to follow the instructions in this section.
 
 To get the correct flags for your API server, run
 
@@ -472,7 +472,7 @@ network_policies:
       app.kubernetes.io/name: kube-system
 ```
 
-### Impersonation
+### Managed Clusters
 
 Most hosted clusters do not support configuring an OpenID Connect identity provider.  The easiest way to manage external access to these clusters is by
 enabling `Impersonation` in OpenUnison.  Using `Impersonation`, OpenUnison provides a reverse proxy in front of your API server, enabling external authentication
@@ -482,8 +482,7 @@ to include a host name for `openunison.api_server_host`.
 #### kubectl exec/cp/port-forward
 
 The kubectl exec, cp, proxy, and port-forward commands use a protocol called SPDY.  This protocol was deprecated by Google in 2016.
-Very few modern systems still support SPDY.  If using OpenUnison with a managed cluster like EKS, GKE, or AKS, OpenUnison will not directly support these kubectl commands.  Assuming your network infrastructure can support SPDY, you can enable the JetStack OIDC Proxy through
-your values.yaml by setting `impersonation.use_jetstack` to `true`.
+Very few modern systems still support SPDY.  If using OpenUnison with a managed cluster like EKS, GKE, or AKS, OpenUnison supports SPDY by integrating [JetStack's OIDC Proxy](https://github.com/jetstack/kube-oidc-proxy). 
 
 ```
 impersonation:
