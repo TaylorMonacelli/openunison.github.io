@@ -1,6 +1,6 @@
 # Custom Logos
 
-If you want to use your own logos instead of Tremolo Security's logo, you'll to create 3 PNG files:
+If you want to use your own logos instead of Tremolo Security's logo, you'll need to create 3 PNG files:
 
 | Filename | Dimmensions | Use |
 | -------- | ----------- | --- |

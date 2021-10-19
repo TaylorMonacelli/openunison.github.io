@@ -59,10 +59,18 @@ you're using the testing MariaDB and SMTP Blackhole from above:
 kubectl patch secret orchestra-secrets-source -n openunison --patch '{"data":{"OU_JDBC_PASSWORD":"c3RhcnR0MTIz","SMTP_PASSWORD":"ZG9lc25vdG1hdHRlcg=="}}'
 ```
 
-Next, update your values.yaml by setting `openunison.enable_provisioning: true` and uncommenting the `database` and `smtp` sections of your values.yaml.
+Next, update your values.yaml by setting `openunison.enable_provisioning: true`, adding the below `az_rules`, and uncommenting the `database` and `smtp` sections of your values.yaml.
 As an example, the below will work with the testing database and SMTP server:
 
 ```
+openunison:
+  enable_provisioning: true
+  use_standard_jit_workflow: false
+  az_groups:
+  - k8s-cluster-k8s-administrators
+  - k8s-namespace-administrators-k8s-*
+  - k8s-namespace-viewer-k8s-*
+
 database:
   hibernate_dialect: org.hibernate.dialect.MySQL5InnoDBDialect
   quartz_dialect: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
@@ -124,3 +132,30 @@ helm install cluster-management tremolo-betas/openunison-k8s-cluster-management 
 
 ### Authentication Groups
 
+This model lets you use groups from your central authentication store to control who has access to namespaces.  When a namespace is requested and approved, `RoleBinding` objects are created that map to your central authentication store.  When using LDAP or Active Directory, you're able to pick groups.  When using OpenID Connect, SAML2, or GitHub you need to type in the names of the groups.  
+
+Unlike the ***Local Management Self Service*** NaaS, this mode does not use workflows to provide access to individual namespaces.  All namespace access is governed by your centralized groups.
+
+To deploy the authentication groups model, add two keys to the `openunison` section to govern which users will be OpenUnison administrators (can approve the creation of new namespaces), and who is a cluster administrator.  If you're using Active Directory, make sure to use the value fo the group's `distinguishedName` attribute. 
+
+As an example for Active Directory:
+
+```
+openunison:
+  adminGroup: "CN=openunison-admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
+  clusterAdminGroup: "CN=k8s_login_ckuster_admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
+```
+
+And for Okta:
+
+```
+openunison:
+  adminGroup: "k8s-openunison-admins"
+  clusterAdminGroup: "k8s-cluster-admins"
+```
+
+Finally, deploy the helm chart:
+
+```
+helm install orchestra-k8s-cluster-management-by-group tremolo-betas/openunison-k8s-cluster-management-by-group -n openunison -f /path/to/openunison.values
+```
