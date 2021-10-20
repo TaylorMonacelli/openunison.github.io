@@ -159,3 +159,13 @@ Finally, deploy the helm chart:
 ```
 helm install orchestra-k8s-cluster-management-by-group tremolo-betas/openunison-k8s-cluster-management-by-group -n openunison -f /path/to/openunison.values
 ```
+
+#### Limiting AD/LDAP Groups
+
+If you want to limit which groups can be chosen for managing access while using either Active Directory or LDAP, add `active_directory.group_search_base` to your values.yaml with the distinguished name of where you want groups to be searched for ***without your value of `active_directory.base`***.  For instnace if I want to limit groups to `cn=AWS,cn=users,dc=ent2k12,dc=domain,dc=com`, and my `active_directory.base`
+is `cn=users,dc=ent2k12,dc=domain,dc=com`, the value for `active_directory.group_search_base` would be `cn=AWS`.  If you have already deployed 
+`orchestra-k8s-cluster-management-by-group`, upgrade it with your new values.yaml:
+
+```
+helm upgrade orchestra-k8s-cluster-management-by-group tremolo-betas/openunison-k8s-cluster-management-by-group -n openunison -f /path/to/openunison.values
+```
