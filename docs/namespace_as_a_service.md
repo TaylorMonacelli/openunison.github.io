@@ -117,48 +117,142 @@ There are multiple ways for you to provision namespaces.  Find the option you wa
 
 ## NaaS Models
 
-### Local Management Self Service
+OpenUnison provides three models out-of-the-box for managing and provisioning namespaces:
 
-The local management self service model will create a `Namespace` and groups inside of OpenUnison's database for namespace administrators, namespace viewers, and
+* **Internal Groups with Self Service** - This model uses groups managed by OpenUnison to provide access to your namespaces.  Use this model if you want to provide a self service model for accessing namespaces.  Using local management, once a namespace is created a user can "request access" to it and the owner of the namespace can approve the access.  There's no need for your cluster management staff to get involved.  You can also enable existing namespaces to have this functionality by adding an anotation.
+* **External Groups** - Using external groups, you specify which groups from your identity provider manage access to your namespaces on creation.  This is useful when you want to drive access management from a central location.  This will work with any of the authentication methods supported by OpenUnison.  For Active Directory and Okta, you're able to select which groups to use wrather then having to type the names.
+* **Hybrid Management** - You can enable both internal and external group management at the same time.  This is useful when you want to drive most authorization decisions via centralized groups from your identity provider but want the flexibility to explicitly enable access when needed.
+
+You don't need to settle on one model initially.  You can start for instnce with external groups and later add internal groups with self service.  Next, we'll cover how to deploy each model.
+
+### Internal Groups with Self Service
+
+The internal groups with self service model will create a `Namespace` and groups inside of OpenUnison's database for namespace administrators, namespace viewers, and
 namespace approvers.  There's no connection to your enterprise directory store and everything is self contained.  Users get access to namespace roles by
 requesting access through the portal.  Namespace approvers can approve, or deny, the access.  New namespaces are requested from inside of the portal,
 with openunison administrators being able to approve the namespace's creation.
 
-To deploy the local management self service model:
+To deploy the local management self service model, first enable internal groups by adding the following to your values.yaml:
+
+```
+openunison:
+  .
+  .
+  .
+  az_groups:
+  - k8s-cluster-k8s-administrators
+  - k8s-cluster-k8s-administrators-internal
+  - k8s-namespace-administrators-k8s-*
+  - k8s-namespace-viewer-k8s-*
+  naas:
+    groups:
+      internal:
+        enabled: false
+```
+
+Next, deploy the helm chart:
 
 ```
 helm install cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
-### Authentication Groups
+Once deployed, login to OpenUnison.  The first user to login will be granted OpenUnison administrator and cluster administrator privileges.  
 
-This model lets you use groups from your central authentication store to control who has access to namespaces.  When a namespace is requested and approved, `RoleBinding` objects are created that map to your central authentication store.  When using LDAP or Active Directory, you're able to pick groups.  When using OpenID Connect, SAML2, or GitHub you need to type in the names of the groups.  
+### External Groups
 
-Unlike the ***Local Management Self Service*** NaaS, this mode does not use workflows to provide access to individual namespaces.  All namespace access is governed by your centralized groups.
+This model lets you use groups from your central authentication store to control who has access to namespaces.  When a namespace is requested and approved, `RoleBinding` objects are created that map to your central authentication store.  When using LDAP, Active Directory, or Okta you're able to pick groups.  When using OpenID Connect, SAML2, or GitHub you need to type in the names of the groups.  
 
-To deploy the authentication groups model, add two keys to the `openunison` section to govern which users will be OpenUnison administrators (can approve the creation of new namespaces), and who is a cluster administrator.  If you're using Active Directory, make sure to use the value fo the group's `distinguishedName` attribute. 
+Unlike the ***Internal Groups with Self Service*** NaaS, this mode does not use workflows to provide access to individual namespaces.  All namespace access is governed by your centralized groups.
+
+To deploy the authentication groups model, first identify groups in your identity provider that will manage who are OpenUnison administrators (who will be able to approve the creation of new `Namespaces`) and another group to manage cluster management.  Then add the following to your values.yaml:
+
+```
+openunison:
+  .
+  .
+  .
+  use_standard_jit_workflow: false
+  az_groups:
+  - k8s-cluster-k8s-administrators
+  - k8s-cluster-k8s-administrators-internal
+  - k8s-namespace-administrators-k8s-*
+  - k8s-namespace-viewer-k8s-*
+  naas:
+    groups:
+      external:
+        enabled: true
+        adminGroup: k8s-admins
+        clusterAdminGroup: k8s-admins
+```
+
+If you're using Active Directory, make sure to use the value for the group's `distinguishedName` attribute. 
+
 
 As an example for Active Directory:
 
 ```
 openunison:
-  adminGroup: "CN=openunison-admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
-  clusterAdminGroup: "CN=k8s_login_ckuster_admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
+  .
+  .
+  .
+  use_standard_jit_workflow: false
+  az_groups:
+  - k8s-cluster-k8s-administrators
+  - k8s-cluster-k8s-administrators-internal
+  - k8s-namespace-administrators-k8s-*
+  - k8s-namespace-viewer-k8s-*
+  naas:
+    groups:
+      external:
+        enabled: true
+        adminGroup: "CN=openunison-admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
+        clusterAdminGroup: "CN=k8s_login_ckuster_admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
 ```
 
-And for Okta:
-
-```
-openunison:
-  adminGroup: "k8s-openunison-admins"
-  clusterAdminGroup: "k8s-cluster-admins"
-```
 
 Finally, deploy the helm chart:
 
 ```
-helm install orchestra-k8s-cluster-management-by-group tremolo-betas/openunison-k8s-cluster-management-by-group -n openunison -f /path/to/openunison.values
+helm install cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
+
+#### Choosing Okta Groups
+
+If you're using Okta as your identity provider and using the External Group Management model, you can tell OpenUnison to lookup groups instead of having to type them in when requesting a new `Namespace`.  To enable this feature, you'll need a token that can read groups from your Okta account.  
+
+Once you have that token, add it to your `orchestra-secrets-source` `Secret` in the `openunison` `Namespace` using the 
+key `OKTA_TOKEN`:
+
+```
+kubectl patch secret orchestra-secrets-source -n openunison --patch '{"data":{"OKTA_TOKEN":"c3RhcnR0MTIz"}}'
+```
+
+Next, in the `oidc` section of your values, add `type: okta`:
+
+```
+oidc:
+  client_id: XXXX_YYYY
+  issuer: https://XXXX.okta.com/
+  user_in_idtoken: false
+  domain: ""
+  scopes: openid email profile groups
+  claims:
+    sub: sub
+    email: email
+    given_name: given_name
+    family_name: family_name
+    display_name: name
+    groups: groups
+  type: okta
+```
+
+Finally, upgrade your chart deployment:
+
+```
+helm upgrade cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+```
+
+When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Okta deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
 
 #### Limiting AD/LDAP Groups
 
@@ -167,5 +261,11 @@ is `cn=users,dc=ent2k12,dc=domain,dc=com`, the value for `active_directory.group
 `orchestra-k8s-cluster-management-by-group`, upgrade it with your new values.yaml:
 
 ```
-helm upgrade orchestra-k8s-cluster-management-by-group tremolo-betas/openunison-k8s-cluster-management-by-group -n openunison -f /path/to/openunison.values
+helm upgrade cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
+
+When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Active Directory or LDAP deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
+
+### Hybrid Management
+
+You can run both models at the same time.  This is useful when you want to use centralized management for the majority of access, but still use local management and self-service for edge cases.  Simply follow the steps for both models!
