@@ -3,6 +3,10 @@
 The authentication portal is the best place to start.  This guide is a step-by-step explination of each of the components
 of the portal, what they do and how to configure them.  
 
+## Upgrading from 1.0.23 and Earlier
+
+You can quickly [upgrade your existing OpenUnison deployment](../../upgrading) without making signifigant changes to your deployment.
+
 ## The Short Version
 
 This is the brief version of how to deploy OpenUnison for you Kubernetes cluster.  The rest of this page contains the
@@ -95,6 +99,7 @@ If you're going to integrate your cluster with OpenID Connect (most on-prem clus
 
 Finally, login to your portal by going to https://`network.openunison_host`/, where `network.openunison_host` is the host name you specified in your values.yaml.  If everything was setup correctly, you can now start working with your cluster!
 
+Learn to use the OpenUnison Login Portal by exploring our [user guide](../../user-manuals/login-portal).
 
 ## Choosing an Identity Source
 
