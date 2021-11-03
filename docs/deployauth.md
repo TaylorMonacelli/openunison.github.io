@@ -222,7 +222,7 @@ Additionally, users may also have:
 You'll need to provide a redirect URL to your identity provider.  The URL will be `https://[network.openunison_host]/auth/oidc`.  For instance if your `network.openunison_host` 
 is k8sou.domain.com your direct URL is `https://k8sou.domain.com/auth/oidc`.
 
-There are specific instructions for various oidc identity providers in the *Identity Providers* section of the documentation.
+For previously tested identity providers and how to configure them, see the [Identity Providers](../identity%20providers) section of the documentation.
 
 To configure OpenID Connect for authentication to your Kubernetes cluster, uncomment the `oidc` section of the base values.yaml file:
 
