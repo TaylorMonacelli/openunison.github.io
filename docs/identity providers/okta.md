@@ -58,7 +58,7 @@ oidc:
     groups: groups
 ```
 
-Once you have updated the `orchestra-secrets-source` with your `OIDC_CLIENT_SECRET` and updated the `oidc` section of your values.yaml, you can continue with [deploying OpenUnison](../../deployauth/#the-short-version).
+Once you have updated the `orchestra-secrets-source` with your `OIDC_CLIENT_SECRET` and updated the `oidc` section of your values.yaml, you can continue with the [Deploy the Portal](../../deployauth#deploy-the-portal) step.
 
 
 ## Namespace as a Service

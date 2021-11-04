@@ -9,7 +9,17 @@ You can quickly [upgrade your existing OpenUnison deployment](../../upgrading) w
 
 ## Deploying the Login Portal
 
-These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explination, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as suscintly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.
+These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explination, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as suscintly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.  There are three pieces to the deployment:
+
+| Deployment Phase | Description | Approximite Time |
+| ---------------- | ----------- | ---------------- |
+| Pre-requisites   | Deploy the `Ingress` controller and dashboard. | This is dependent on how long it takes to deploy and validate your `Ingress` controller of choice and accompanying network infrastructure such as load balancers. |
+| Base Configuration | Create the openunison `Namespace`, initial `Secret`, and deploy the operator | Less then 5 minutes |
+| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and updating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your pre-requisites are ready |
+| Deploy the Portal | Running the last two Helm charts that deploy OpenUnison using your values.yaml. | Less then 5 minutes |
+| *Optional* - Ingrating Your Cluster | If you're using OpenID Connect to integrate directly with your cluster, you'll need to configure your cluster to trust OpenUnison for authentication | Dependent on the Kubernetes distrobution, usually less then five minutes |
+
+In any OpenUnison deployment the most amount of time spent is on getting the networking for your cluster working and getting the right authentication configuration for your identity store.  Once those are ready the rest of the deployment is very direct.
 
 ### Pre-requisites
 
@@ -27,7 +37,7 @@ Once your `Ingress` controller is deployed, the next step is to deploy the dashb
 
 **The Kubernetes Dashboard**
 
-The [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) is a powerful and sumple way to work with your cluster without having access to a command line.  It is accessed securely by using the user's own permissions, with the dashboard its self having no permissions in your cluster.  OpenUnison manages the login process for you, so there's no need to upload a kubectl configuration to the dashboard to make it work.  The dashboard can be deployed with:
+The [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) is a powerful and simple way to work with your cluster without having access to a command line.  It is accessed securely by using the user's own permissions, with the dashboard its self having no permissions in your cluster.  OpenUnison manages the login process for you, so there's no need to upload a kubectl configuration to the dashboard to make it work.  The dashboard can be deployed with:
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
@@ -94,15 +104,15 @@ kind: Secret
 
 ### Site Specific Configuration
 
-This section is where you'll do the work of configuring OpenUnison for your cluster and spend the most time.  The deployment steps are here with links to detailed configuration options to guide you through the process.
+This section is where you'll do the work of configuring OpenUnison for your cluster and spend the most time.  The deployment steps are here, with links to detailed configuration options to guide you through the process.
 
-Get the latest [default values.yaml](/assets/yaml/openunison-default.yaml) and customize it.  There are three minimum configuration sections you need to address:
+First, get the latest [default values.yaml](/assets/yaml/openunison-default.yaml) and customize it.  There are three minimum configuration sections you need to address:
 
 | Values Section | Decision Points | Notes |
 | -------------- | --------------- | ----- |
 | `enable_impersonation` | Determine if you want to integrate your cluster directly with OpenUnison using OpenID Connect (`false`), or use OpenUnison's integrated impersonating reverse proxy when interacting with the API server (`true`).  In general, if you're working with an on-premesis cluster this will be `false`.  If you're using a hosted, or managed, cluster such as EKS or Civo this would by `true`.  |
 | `network`      | This section describes how you will access OpenUnison and how OpenUnison will interact with your cluster | [Host Names and Networking](#host-names-and-networking) |
-| Authentication | How will OpenUnison authenticate users?  This is covered in detail next.  At least one option is required. | [Choosing an Identity Source](#choosing-an-identity-source) |
+| Authentication (***One*** of `activedirectory`, `oidc`, `github`, or `saml`) | How will OpenUnison authenticate users?  This is covered in detail next.  At least one option is required. | [Choosing an Identity Source](#choosing-an-identity-source) |
 
 Once you've chosen an identity source, return here to finish the installation.
 
@@ -118,7 +128,7 @@ First, install the `orchestra` chart, which does the configuration check and sta
 helm install orchestra tremolo-betas/orchestra --namespace openunison -f /path/to/values.yaml
 ```
 
-If this deployment fails, it's likely from a misconfiguration of your values.yaml.  See [troubleshooting your orchestra deployment failure](../knowledgebase/orchestra_deployment_failed) for isntructions on how to debug.
+If this deployment fails, it's likely from a misconfiguration of your values.yaml.  See [troubleshooting your orchestra deployment failure](../knowledgebase/orchestra_deployment_failed) for instructions on how to debug.
 
 Wait until the orchestra pods are running.  There are validating webhook configurations that will fail in the last step if we 
 don't wait.
@@ -265,6 +275,12 @@ Once completed, continue to [Deploy the Portal](#deploy-the-portal) to finish th
 The OpenID Connect protocol is a popular protocol used by Google, Okta, and many others.  It is a well documented standard that is usually the first choice of most
 SSO implementations.  While Kubernetes can integrate directly with most OpenID Connect providers, those providers won't generate a kubectl configuration, support the dashboard, or support other cluster management applications.  OpenUnison will support this for your without having to make multiple integrations with your identity
 provider.
+
+These following steps will work with any OpenID Connect compatible identity provider.  Here are detailed instructions for specific implementations:
+
+* [Okta](../../identity%20providers/okta)
+* [Keycloak](../../identity%20providers/keycloak)
+
 
 ![OpenUnison and OpenID Connect](assets/images/ou-auth-oidc.png)
 
@@ -475,6 +491,8 @@ If you're running OpenUnison on a managed cluster like EKS or GKE, you'll need a
 that kubectl will use.  
 
 ***All of these host names must be different***
+
+This diagram shows the relationships between the host names used to access OpenUnison, your `Ingress` controller, and the load balancer.  In this example, `https://k8sou.domain.com` is the URL for the OpenUnison portal.  The dashboard is accessed using `https://k8sdb.domain.com`, and the API server is accessed using `https://k8sapi.domain.com`.  All three URL's host names point to the same IP address (`a.b.c.d`), which is assigned to the load balancer.
 
 ![OpenUnison Network](assets/images/openunison_k8s_network.png)
 
