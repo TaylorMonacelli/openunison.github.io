@@ -514,6 +514,9 @@ OpenUnison.  OpenUnison authenticates your `id_token` and then injects Impersona
 you to authenticate to your cluster without getting cloud IAM credentials.  This process will be transparent to your tools, such
 as kubectl.
 
+***No DNS Server?***
+*If you don't have a DNS server where you can setup host names, try using nip.io.  This service will take any host name with an IP and return the IP address for DNS resolution.  For instance k8sou.apps.192-168-2-119.nip.io will resolve to 192.168.2.119.*
+
 
 
 #### Network Configuration Options
