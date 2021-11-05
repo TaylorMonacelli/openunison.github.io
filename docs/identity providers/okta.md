@@ -26,7 +26,11 @@ The next screen will let you name your application and provide a logo.  It will 
 
 ![Okta Application Configuration ](../../../assets/images/identity-providers/okta/screen4.png)
 
-Once you click **Save**, you'll be brought to the final application configuration screen which will have the data you need to configure OpenUnison.
+Once you click **Save**, you'll be brought to the final application configuration screen which will have the data you need to configure OpenUnison.  There's one last step though, Okta needs to be configured to send groups to OpenUnison so they can be used in `RoleBinding` and `ClusterRolebinding` objects in your cluster.  On this screen, click on **Sign On** (it's on the top of the screen), then in the bottom box click **Edit** next to the **OpenID Connect ID Token** header.  Next to **Groups claims filter** change the dropdown that says **Starts With** to **Matches regex** and put `.*` in the text box next to it.  Click **Save** to finish the configuration.  This will send all groups the user is a member of in your Okta domain to OpenUnison.  You can come back and configure this later to limit groups that are related to your Kubernetes clusters.
+
+![Okta Application Configuration ](../../../assets/images/identity-providers/okta/screen6.png)
+
+With groups configured, you can click on the **General** tab near the top and finish the OpenUnison configuration.
 
 ## Configuring OpenUnison
 
@@ -35,8 +39,8 @@ In Okta, navigate to your application if you aren't already there.  You can get 
 |OpenUnison Field|Configuration Type|Okta Section|Okta Field|
 |----------------|------------------|------------|----------|
 |oidc.client_id  | helm values.yaml | Client Credentials | Client ID |
-|OIDC_CLIENT_SECRET | `orchestra-secrets-source` `Secret` | Client Credentials | Client secret |
 |oidc.issuer | helm values.yaml | General Settings | Okta Domain |
+|OIDC_CLIENT_SECRET | `orchestra-secrets-source` `Secret` | Client Credentials | Client secret |
 
 ![Okta Application ](../../../assets/images/identity-providers/okta/screen5.png)
 

@@ -3,7 +3,7 @@
 If you're having issues or just have a question, there are two ways to get help for your deployment:
 
 * Open an issue on [GitHub](https://github.com/openunison/openunison-k8s/issues)
-* Obtain a [commercial support contract](https://www.tremolosecurity.com/pricing) from Tremolo Security 
+* Obtain a [commercial support contract](https://www.tremolosecurity.com/resources/pricing) from Tremolo Security 
 
 We're happy to help our open source customers get their issues resolved and make sure things are running smoothly.  We also encourage you to request features too!  OpenUnison is always improving.  
 
