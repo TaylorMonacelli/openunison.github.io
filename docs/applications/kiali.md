@@ -16,7 +16,7 @@ In this scenario, the user accesses Kiali through the same host name as the acce
 To deploy, run the `openunison-kiali` helm chart to deploy:
 
 ```
-helm install openunison-kiali tremolo-betas/openunison-kiali -n openunison --set enabled_impersonation=false
+helm install openunison-kiali tremolo/openunison-kiali -n openunison --set enabled_impersonation=false
 ```
 
 ## Reverse Proxy with Impersonation
@@ -28,7 +28,7 @@ If you're runnnig a managed cluster like EKS or Civo, you'll need to use imperso
 To deploy, run the `openunison-kiali` helm chart to deploy:
 
 ```
-helm install openunison-kiali tremolo-betas/openunison-kiali -n openunison --set enabled_impersonation=true
+helm install openunison-kiali tremolo/openunison-kiali -n openunison --set enabled_impersonation=true
 ```
 
 Next, update the Kiali configuration.  Depending on if you are using the operator or have deployed Kiali directly you may need to edit either the `kiali` `ConfigMap` or the `kiali` object.  Which ever configuration you need to update, change `auth.strategy` to `header`.  If you had to edit the `ConfigMap` directly, restart the `kiali` pods.  If you are running the operator, it will restart the pods for you.

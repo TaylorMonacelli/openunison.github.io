@@ -23,7 +23,7 @@ kubectl apply -f https://gist.githubusercontent.com/mlbiam/a7d8e6cb5ee4afb49f2bb
 Next, update your values.yaml to include `openunison.post_jit_workflow` with the name of your custom `Workflow`, in this case `create-user-namespace` and update your `orchestra-login-portal` helm deployment:
 
 ```
-helm upgrade orchestra-login-portal tremolo-betas/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+helm upgrade orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
 ```
 
 The next time a user logs into OpenUnison, they'll have their own `Namespace`!  This workflow can be customized in any number of ways, such as by adding

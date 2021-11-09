@@ -90,7 +90,7 @@ smtp:
 Next, update the orcehstra chart:
 
 ```
-helm upgrade orchestra tremolo-betas/orchestra --namespace openunison -f /path/to/values.yaml
+helm upgrade orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
 ```
 
 Wait for openunison-orchestra to finish creating and for your old container deployment.
@@ -100,7 +100,7 @@ Wait for openunison-orchestra to finish creating and for your old container depl
 Once done, update the `orchestra-login-portal` chart:
 
 ```
-helm upgrade orchestra-login-portal tremolo-betas/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+helm upgrade orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
 ```
 
 Next, login to your portal.  You'll see two "badges":
@@ -153,7 +153,7 @@ openunison:
 Next, deploy the helm chart:
 
 ```
-helm install cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
 Once deployed, login to OpenUnison.  The first user to login will be granted OpenUnison administrator and cluster administrator privileges.  
@@ -213,7 +213,7 @@ openunison:
 Finally, deploy the helm chart:
 
 ```
-helm install cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
 #### Choosing Okta Groups
@@ -249,7 +249,7 @@ oidc:
 Finally, upgrade your chart deployment:
 
 ```
-helm upgrade cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Okta deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
@@ -261,7 +261,7 @@ is `cn=users,dc=ent2k12,dc=domain,dc=com`, the value for `active_directory.group
 `orchestra-k8s-cluster-management-by-group`, upgrade it with your new values.yaml:
 
 ```
-helm upgrade cluster-management tremolo-betas/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Active Directory or LDAP deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.

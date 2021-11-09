@@ -52,26 +52,26 @@ The latest `openunison` helm chart includes additional schemas needed to run the
 
 ```
 $ helm repo update
-$ helm upgrade openunison tremolo-betas/openunison-operator --namespace openunison
+$ helm upgrade openunison tremolo/openunison-operator --namespace openunison
 ```
 Wait for the new `openunison-operator` `Pod` to be running.  
 
 ## Deploy the New Helm Charts
 
-Before updating your charts, update the `image` value in your values.yaml to point to the new container at `docker.io/tremolosecurity/betas:ou-k8s-1024`, then update your 
+Before updating your charts, update the `image` value in your values.yaml to point to the new container at `docker.io/tremolosecurity/openunison-k8s`, then update your 
 
 Using the same values.yaml you used for your previous deployment of OpenUnison, first deploy the `orchestra` chart and wait for it to finish:
 
 ```
 $ kubectl delete cronjobs --all -n openunison
-$ helm install orchestra tremolo-betas/orchestra --namespace openunison -f /path/to/values.yaml
+$ helm install orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
 $ while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
 ```
 
 Finally. deploy the `orchestra-login-portal` chart:
 
 ```
-helm install orchestra-login-portal tremolo-betas/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+helm install orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
 ```
 
 Once the `ouhtml-orchestra-login-portal` `Pod` is running, you can login again!  you won't need to worry about re-trusting OpenUnison if using OpenID Connect with your API server.

@@ -29,8 +29,8 @@ openunison:
 Finally, upgrade your helm deployments:
 
 ```
-helm upgrade orchestra tremolo-betas/orchestra -n openunison -f /path/to/values.yaml
-helm upgrade orchestra-login-portal tremolo-betas/orchestra-login-portal -n openunison -f /path/to/values.yaml
+helm upgrade orchestra tremolo/orchestra -n openunison -f /path/to/values.yaml
+helm upgrade orchestra-login-portal tremolo/orchestra-login-portal -n openunison -f /path/to/values.yaml
 ```
 
 Once all containers are running again, your logos will appear instead of Tremolo Security's logos.

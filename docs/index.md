@@ -1,7 +1,5 @@
 # Access Portal for Kubernetes
 
-***THIS SITE IS A PREVIEW FOR THE NEXT RELEASE OF OPENUNISON.  IF YOU WANT TO USE AN EXISTING RELEASE, GO TO [https://github.com/openunison/](https://github.com/openunison/) TO CHOOSE THE RIGHT ONE***
-
 OpenUnison is the an access portal for your Kubernetes deployments.  You can use it manage access to a single cluster or for
 all of your clusters.  Using OpenUnison you your Active Directory groups, or Okta groups, in your RBAC bindings.  With OpenUnison:
 

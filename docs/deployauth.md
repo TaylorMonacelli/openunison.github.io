@@ -72,7 +72,7 @@ helm repo update
 Next, install the operator.  The operator is responsble for generating OpenUnison's configuration and consolidating certificates and keys into a central keystore used by OpenUnison.  You can [customize the operator's chart](../documentation/operator) for your environment, but most deployments can use the defaults.
 
 ```
-helm install openunison tremolo-betas/openunison-operator --namespace openunison
+helm install openunison tremolo/openunison-operator --namespace openunison
 ```
 
 Wait until the operator pod is running.  
@@ -125,7 +125,7 @@ With your values.yaml and `Secret` configured for your authentication source, th
 First, install the `orchestra` chart, which does the configuration check and starts the openunison `Pod`.
 
 ```
-helm install orchestra tremolo-betas/orchestra --namespace openunison -f /path/to/values.yaml
+helm install orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
 ```
 
 If this deployment fails, it's likely from a misconfiguration of your values.yaml.  See [troubleshooting your orchestra deployment failure](../knowledgebase/orchestra_deployment_failed) for instructions on how to debug.
@@ -142,7 +142,7 @@ while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpa
 Last step, deploy the orchestra login portal chart with the ***same values.yaml as the previous chart***:
 
 ```
-helm install orchestra-login-portal tremolo-betas/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+helm install orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
 ```
 
 If you're going to integrate your cluster with OpenID Connect (most on-prem clusters will be integrated this way), the final step is to

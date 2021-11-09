@@ -3,7 +3,7 @@
 If the result of deploying the orchestra chart looks like:
 
 ```
-helm install orchestra tremolo-betas/orchestra --namespace openunison -f Book-Second-Edition-Work/chapter5/openunison-values.yaml 
+helm install orchestra tremolo/orchestra --namespace openunison -f Book-Second-Edition-Work/chapter5/openunison-values.yaml 
 Error: failed pre-install: pod test-orchestra-orchestra failed
 ```
 
