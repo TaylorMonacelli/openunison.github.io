@@ -63,7 +63,7 @@ kubectl create ns openunison
 Add OpenUnison's Helm repos to your system.  We host these repos on our own services behind our certificate.
 
 ```
-helm repo add tremolo-betas https://nexus.tremolo.io/repository/helm-betas/
+helm repo add tremolo https://nexus.tremolo.io/repository/helm/
 helm repo update
 ```
 
