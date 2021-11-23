@@ -9,3 +9,4 @@ To deploy OpenUnison in an air-gap environment you need to import for the follow
 |docker.io/tremolosecurity/kubernetes-artifact-deployment:1.1.0|Check certificates, update them as needed|tremolo/openunison-*|`cert_update_image`|
 |docker.io/tremolosecurity/openunison-k8s|Orchestra Image|tremolo/orchestra|`image`|
 |docker.io/tremolosecurity/python3|Helm Test Image|`openunison.precheck.image`|
+|docker.io/tremolosecurity/openunison-k8s-html|NGINX Image for static HTML & JavaScript|`openunison.html.image`|
