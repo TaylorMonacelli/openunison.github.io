@@ -1,4 +1,4 @@
-site_name: OpenUnison Orchestra
+site_name: Kubernetes Authentication and SSO - OpenUnison
 theme: 
   name: material
   logo: assets/ts-logo-white.png
