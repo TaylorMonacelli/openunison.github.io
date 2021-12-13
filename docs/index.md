@@ -1,3 +1,7 @@
+---
+description: Simplify security for Kubernetes with OpenUnison.  Supports Okta, OIDC, Active Directory, LDAP, SAML2, and GitHub
+---
+
 # Kubernetes Authentication and SSO
 
 OpenUnison provides SSO and authentication for your Kubernetes clusters, no matter where they run or how your users need to authenticate.
