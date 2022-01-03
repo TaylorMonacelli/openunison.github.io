@@ -588,7 +588,7 @@ Very few modern systems still support SPDY.  If using OpenUnison with a managed 
 ```
 impersonation:
   use_jetstack: true
-  jetstack_oidc_proxy_image: quay.io/jetstack/kube-oidc-proxy:v0.3.0
+  jetstack_oidc_proxy_image: docker.io/tremolosecurity/kube-oidc-proxy:latest
   explicit_certificate_trust: true
 ```
 Here are the details configuration options for impesonation:
