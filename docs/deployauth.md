@@ -348,8 +348,12 @@ You can customize these values based on your identity provider's needs.
 | oidc.claims.displayName | If specified, the claim from the `id_token` to use for the `dipslayName` attribute |
 | oidc.claims.groups | If specified, the claim from the `id_token` to use for the `groups` attribute |
 
+If you prefer to keep your identity provider's `client_id` as a `Secret`, store it as `OIDC_CLIENT_ID` in the `orchestra-secrets-source` `Secret` in the `openunison` namespace and set `oidc.client_id_is_secret: true` in your values.yaml.  The `client_id` will be read from the `Secret` instead of being stored directly in the configuration object.
+
 
 Finally, add `OIDC_CLIENT_SECRET` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your identity provider.
+
+***If using `echo DATA | base64` to encode your `Secret`, make sure to use `-n` to remove the excess carriage return, ie `echo -n DATA | base64`.  Your authentication will fail otherwise.***
 
 #### RBAC Bindings
 
