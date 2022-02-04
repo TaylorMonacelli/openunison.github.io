@@ -1,22 +1,61 @@
 # Namespace as a Service
 
-Once you have authentication working for your cluster, often the next question is "How do I provision workloads?".
-A simple way to get started is to provide *Namespace as a Service*, or *NaaS*, so your users can request their
-own namespaces be created and let them manage access as needed.  The login portal you've created can be extended
-to support self service NaaS portal where `Namespaces`, `RoleBindings`, and other management objects like 
-default `NetowrkPolicy` and `ResourceQuota` objects can be created automatically.  Default labels and annotations
-can also be added to support your reporting needs.
+## Introduction
+
+The OpenUnison Namespace as a Service (NaaS) portal gives your users control of their own corner of their cluster without involving cluster operations in the creation or access management for their `Namespace`.  What makes OpenUnison unique is that:
+
+1. You can write objects either directly to the API server or to a git repository to support a GitOps workflow to `Namespace` creation
+2. The NaaS portal can be applied to existing clusters to get immediate self service access
+3. Collect additional metadata
+3. Approvals can be customized and automated, for instance instead of always requiring an approval for a new `Namespace` you can have it automatically approved in certain situations
+4. Support for "Day 2" operations such a resizing quotas and providing access to namespaces without running the kubectl command
+5. Provisioning of non-Kubernetes resources, such as pipelines, git repos, etc.
+
+In the last chapter of Kubernetes: An Enterprise Guide, The OpenUnison NaaS portal is used to build a complete GitOps workflow.  The Kubernetes namespaces, TektonCD pipelines, GitLab repositories, and ArgoCD integrations are all created automatically. 
+
+<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/470755778?h=de22bd8014&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Automate GitOps with Tekton and OpenShift"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+
+In this video (~17 minutes), we show how OpenUnison was able to orchestrate the entire process so your users can go from nothing, to a fully running service deployed via GitOps, without running a single kubectl command and without the cluster administrators having to do any manual steps.
+
+There are three modes for using the OpenUnison NaaS to authorize access to a cluster:
+
+1. OpenUnison Managed Groups - All groups are stored by OpenUnison with access managed internally by OpenUnison.  This gives you the most flexability in how your users access your cluster without any kind of outside dependencies.
+2. Externally Managed Groups - When a user requests a `Namespace` be created, they specify groups from their identity provider.  Whenver a user logs in to use the cluster they're able to access namespaces based on their external identity.
+3. Hybrid - When a `Namespace` is requested, both internally managed groups and external groups are used.
+
+Of the three potential approaches, the Hybrid approach is the most popular.  This gives you the ability to use existing groups for majority of access while still letting OpenUnison support exceptions that always seem to be required.  The next section provides the details as to what the `Namespace` creation process entails and what gets created.
+
+## Namespace Creation Process
+
+From a systems' perspective, the default `Namespace` creation process will create:
+
+| Object | Location | Description |
+| ------ | ---------| ------------ |
+| `Namespace` | Kubernetes or Git | The requested Namespace |
+| Admin `RoleBinding`(s) | Kubernetes or Git |  `RoleBinding` for the `admin` `ClusterRole`.  One `RoleBinding` is created for each of external and internal groups depending on which authorization model is used. |
+| View `RoleBinding`(s) | Kubernetes or Git |  `RoleBinding` for the `view` `ClusterRole`. One `RoleBinding` is created for each of external and internal groups depending on which authorization model is used. |
+| Approval Group | Database | This group is used to determine who can approve access to the Admin and View roles.  The requester of the `Namespace` is added as the first user. |
+| Namespace Admin Group(s) | Database | A group for internal and/or internal is created in the database to manage access to the Admin role for the `Namespace` |
+| Namespace View Group(s) | Database | A group for internal and/or internal is created in the database to manage access to the View role for the `Namespace` |
+
+If using git to provision objects, in addition to the above being provisioned into Git, the following objects are created:
+
+| Object | Location | Description |
+| ------ | ---------| ------------ |
+| Git `Secret` | Kubernetes | An SSH private key used by OpenUnison to interact with the git repository that is responsible for supporting the new `Namespace` |
+
+This provides the most basic `Namespace` capabilities.  You can customize this workflow to add `ResourceQuota` objects, additional roles, or additional metadata you may use to track charge-back.
 
 ## Deploying The NaaS Portal
 
-## Before You Deploy
+### Before You Deploy
 
 Before moving forward, you will need two additional components are required:
 
 1. Relational Database (right now MySQL or MariaDB, more will be supported soon)
 2. An SMTP server for notifications
 
-### Testing MariaDB
+#### Testing MariaDB
 
 If you need a simple database implementation for testing, this [MariaDB deployment can be used](https://raw.githubusercontent.com/OpenUnison/kubeconeu/main/src/main/yaml/mariadb_k8s.yaml).  If you use this database, use the following configuration information:
 
@@ -28,7 +67,7 @@ If you need a simple database implementation for testing, this [MariaDB deployme
 | Password | `startt123` |
 | Database Name | `unison` |
 
-### Testing SMTP Server
+#### Testing SMTP Server
 
 If you don't have an SMTP server available, you can use the SMTP Blackhole we created to have a place to send email
 without forwarding it to any recipients:
@@ -49,7 +88,7 @@ If you use the blackhole smtp service, use the following configuration informati
 | Password | none |
 | TLS | `false` |
 
-## Deployment
+### Deployment
 
 Once you have your [Authentication Portal](../deployauth/), database, and SMTP server deployed the next step is to
  add your database password and SMTP password to your `orchestra-secrets-source` `Secret` in the openunison namespace.  Assuming
@@ -115,7 +154,7 @@ You see these badges because the first user to login is provisioned as an admini
 
 There are multiple ways for you to provision namespaces.  Find the option you want to determine how to provision namespaces and gain access to them.
 
-## NaaS Models
+### NaaS Models
 
 OpenUnison provides three models out-of-the-box for managing and provisioning namespaces:
 
@@ -125,7 +164,7 @@ OpenUnison provides three models out-of-the-box for managing and provisioning na
 
 You don't need to settle on one model initially.  You can start for instnce with external groups and later add internal groups with self service.  Next, we'll cover how to deploy each model.
 
-### Internal Groups with Self Service
+#### Internal Groups with Self Service
 
 The internal groups with self service model will create a `Namespace` and groups inside of OpenUnison's database for namespace administrators, namespace viewers, and
 namespace approvers.  There's no connection to your enterprise directory store and everything is self contained.  Users get access to namespace roles by
@@ -158,7 +197,7 @@ helm install cluster-management tremolo/openunison-k8s-cluster-management -n ope
 
 Once deployed, login to OpenUnison.  The first user to login will be granted OpenUnison administrator and cluster administrator privileges.  
 
-### External Groups
+#### External Groups
 
 This model lets you use groups from your central authentication store to control who has access to namespaces.  When a namespace is requested and approved, `RoleBinding` objects are created that map to your central authentication store.  When using LDAP, Active Directory, or Okta you're able to pick groups.  When using OpenID Connect, SAML2, or GitHub you need to type in the names of the groups.  
 
@@ -216,7 +255,7 @@ Finally, deploy the helm chart:
 helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
 ```
 
-#### Choosing Okta Groups
+##### Choosing Okta Groups
 
 If you're using Okta as your identity provider and using the External Group Management model, you can tell OpenUnison to lookup groups instead of having to type them in when requesting a new `Namespace`.  To enable this feature, you'll need a token that can read groups from your Okta account.  
 
@@ -254,7 +293,7 @@ helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n ope
 
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Okta deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
 
-#### Limiting AD/LDAP Groups
+##### Limiting AD/LDAP Groups
 
 If you want to limit which groups can be chosen for managing access while using either Active Directory or LDAP, add `active_directory.group_search_base` to your values.yaml with the distinguished name of where you want groups to be searched for ***without your value of `active_directory.base`***.  For instnace if I want to limit groups to `cn=AWS,cn=users,dc=ent2k12,dc=domain,dc=com`, and my `active_directory.base`
 is `cn=users,dc=ent2k12,dc=domain,dc=com`, the value for `active_directory.group_search_base` would be `cn=AWS`.  If you have already deployed 
@@ -266,6 +305,6 @@ helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n ope
 
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Active Directory or LDAP deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
 
-### Hybrid Management
+#### Hybrid Management
 
 You can run both models at the same time.  This is useful when you want to use centralized management for the majority of access, but still use local management and self-service for edge cases.  Simply follow the steps for both models!
