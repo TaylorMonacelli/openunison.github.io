@@ -1,0 +1,110 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: JavaScriptMapping
+metadata:
+  namespace: openunison
+  name: argocd-groups
+spec:
+  javascript: |-
+    function doMapping(user,name) {
+      Attribute = Java.type("com.tremolosecurity.saml.Attribute");
+
+      // get the current groups from the user
+      var groups = user.getAttribs().get("groups").getValues()
+
+      // list of simple group names
+      simpleGroups = new Attribute(name);
+      
+
+      // convert groups from LDAP DNs from Active Directory to standard group names
+      for (var i=0;i<groups.length;i++) {
+        var group = groups.get(i);
+
+        // remove everything before the first '=' and after the first comma ','
+        // ex cn=my-group,dc=domain,dc=com --> my-group
+        var simpleGroupName = group.substring(group.indexOf('=') + 1, group.indexOf(','));
+
+        // we only want to send argocd groups
+        if (simpleGroupName.startsWith('argocd-')) {
+          simpleGroups.getValues().add(simpleGroupName);
+        }
+      }
+
+
+
+      return simpleGroups;
+    }
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Application
+metadata:
+  labels:
+    app.kubernetes.io/component: openunison-applications
+    app.kubernetes.io/instance: openunison-orchestra-login-portal
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/part-of: openunison
+  name: argocd
+  namespace: openunison
+spec:
+  azTimeoutMillis: 3000
+  cookieConfig:
+    cookiesEnabled: true
+    domain: '#[OU_HOST]'
+    httpOnly: true
+    keyAlias: session-unison
+    logoutURI: /logout
+    scope: -1
+    secure: true
+    sessionCookieName: tremolosession
+    timeout: 900
+  isApp: false
+  urls:
+  - azRules:
+    - constraint: o=Tremolo
+      scope: dn
+    filterChain: []
+    hosts:
+    - '#[OU_HOST]'
+    idp:
+      className: com.tremolosecurity.idp.providers.OpenIDConnectIdP
+      mappings:
+        map:
+        - sourceType: user
+          targetAttributeName: sub
+          targetAttributeSource: sub
+        - sourceType: composite
+          targetAttributeName: name
+          targetAttributeSource: ${givename} ${sn}
+        - sourceType: user
+          targetAttributeName: preferred_username
+          targetAttributeSource: uid
+        - sourceType: user
+          targetAttributeName: email
+          targetAttributeSource: mail
+        - sourceType: custom
+          targetAttributeName: groups
+          targetAttributeSource: com.tremolosecurity.mapping.JavaScriptMapping|k8s,openunison,argocd-groups
+        strict: true
+      params:
+        jwtSigningKey: unison-saml2-rp-sig
+        k8sNameSpace: '#[K8S_OPENUNISON_NS:openunison]'
+        k8sTarget: k8s
+        sessionStoreClassName: com.tremolosecurity.oidc.k8s.K8sSessionStore
+      trusts:
+      - name: 'https://argocd.apps.192-168-2-104.nip.io/'
+        params:
+          accessTokenSkewMillis: "120000"
+          accessTokenTimeToLive: '60000'
+          authChainName: login-service
+          clientID: argocd-argocdweb
+          clientSecret: ""
+          codeLastMileKeyName: lastmile-oidc
+          codeTokenSkewMilis: '60000'
+          publicEndpoint: "true"
+          redirectURI: 
+          - https://argocd.apps.192-168-2-104.nip.io/auth/callback
+          - http://localhost:8085/auth/callback
+    results:
+      auFail: default-login-failure
+      azFail: default-login-failure
+    uri: /auth/idp/argocd

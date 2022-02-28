@@ -682,3 +682,7 @@ will be the same as how you would specify them in an RBAC binding.
 | openunison.html.image | A custom NGINX image for the HTML frontend for OpenUnison's apis. |
 | openunison.enable_provisioning | If `true`, enables openunison's provisioning and audit database. |
 | openunison.az_groups | List of groups to authorize access for this cluster |
+
+## Integrating Other Applications
+
+OpenUnison can support the authentication for your entire environment, not just Kubernetes!  Take a look at our [guides for well known applications](../applications).  Also check out our documentation for [SSO application integration](../documentation/custom-sso).
