@@ -52,7 +52,7 @@ This provides the most basic `Namespace` capabilities.  You can customize this w
 
 Before moving forward, you will need two additional components are required:
 
-1. Relational Database (right now MySQL or MariaDB, more will be supported soon)
+1. Relational Database - MySQL, MariaDB, PostgreSQL, and MS SQL Server are all supported
 2. An SMTP server for notifications
 
 #### Testing MariaDB
@@ -124,6 +124,46 @@ smtp:
   user: "none"
   from: donotreply@domain.com
   tls: false
+```
+
+The above is for MySQL or MariaDB.  For other databases:
+
+#### Databases
+
+##### MariaDB & MySQL
+
+```
+database:
+  hibernate_dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  quartz_dialect: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+  driver: com.mysql.jdbc.Driver
+  url: jdbc:mysql://mariadb.mariadb.svc:3306/unison
+  user: unison
+  validation: SELECT 1
+```
+
+##### PostgreSQL
+
+```
+database:
+  hibernate_dialect: org.hibernate.dialect.PostgreSQLDialect
+  quartz_dialect: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+  driver: org.postgresql.Driver
+  url: jdbc:postgresql://postgresql-db.postgres.svc.cluster.local:5432/unison
+  user: postgres
+  validation: SELECT 1
+```
+
+##### SQL Server
+
+```
+database:
+  hibernate_dialect: org.hibernate.dialect.SQLServer2008Dialect
+  quartz_dialect: org.quartz.impl.jdbcjobstore.MSSQLDelegate
+  driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  url: jdbc:sqlserver://192.168.2.102:1433;databaseName=unison
+  user: unison
+  validation: SELECT 1
 ```
 
 Next, update the orcehstra chart:
