@@ -280,6 +280,7 @@ These following steps will work with any OpenID Connect compatible identity prov
 
 * [Okta](../../identity%20providers/okta)
 * [Keycloak](../../identity%20providers/keycloak)
+* [AzureAD](../../identity%20providers/azuread)
 
 
 ![OpenUnison and OpenID Connect](assets/images/ou-auth-oidc.png)

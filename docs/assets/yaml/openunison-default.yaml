@@ -33,6 +33,8 @@ dashboard:
   cert_name: "kubernetes-dashboard-certs"
   label: "k8s-app=kubernetes-dashboard"
   service_name: kubernetes-dashboard
+  require_session: true
+  
 certs:
   use_k8s_cm: false
 
@@ -74,7 +76,9 @@ monitoring:
 #saml:
 #  idp_url: "https://portal.apps.tremolo.io/idp-test/metadata/dfbe4040-cd32-470e-a9b6-809c8f857c40"
 
-       
+
+  
+
 network_policies:
   enabled: false
   ingress:

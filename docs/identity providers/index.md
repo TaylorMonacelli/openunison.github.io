@@ -6,3 +6,4 @@ The identity providers listed here have been tested with OpenUnison, but this is
 | ----------------- | -------- |
 | [Okta](okta)      | OpenID Connect | 
 | [Keycloak](keycloak) | OpenID Connect |
+| [AzureAD](azuread) | OpenID Connect |
