@@ -46,7 +46,7 @@ Once your application is registered, the next step is to create a client secret.
 
 Click on **+ New client secret**, give it a description and a life span.  How long the secret is valid is based on your requirements and compliance needs.  Once you click **Add**, the secret will become available for you to copy.  Copy it, and store it to the `OIDC_CLIENT_ID` key in the `orchestra-secrets-source` `Secret`.  ***If using `echo` to based64 encode the data, make sure to use `echo -n` to avoid adding an extra newline!***
 
-With the client secret created and stored in your cluster, the next step is to setup your token.  Next, click on **Token configuration** on the left hand side.  Next, click on **Add optional claim** and choose `email`, `family_name`,`given_name`, and `preferred_username` and click **Add**.  When AzureAD asks if you want to add the scopes automatically, agree.  Adding these claims isn't required, but will make it much easier to manage your integration.
+With the client secret created and stored in your cluster, the next step is to setup your token.  Next, click on **Token configuration** on the left hand side.  Next, click on **Add optional claim** and choose `email`, `family_name`,`given_name`, `upn`, and `preferred_username` and click **Add**.  When AzureAD asks if you want to add the scopes automatically, agree.  Adding these claims isn't required, but will make it much easier to manage your integration.
 
 ![Add optional claims](../../../assets/images/identity-providers/azuread/3.png)
 
@@ -74,7 +74,7 @@ oidc:
   domain: ""
   scopes: openid email profile
   claims:
-    sub: preferred_username
+    sub: upn
     email: email
     given_name: given_name
     family_name: family_name
@@ -86,7 +86,7 @@ In addition to setting `oidc.client_id` and `oidc.issuer`, change :
 
 1. `oidc.user_in_idtoken` to `false`
 2. Remove `groups` from `oidc.scopes`
-3. Change `oidc.claims.sub` to `preferred_username`
+3. Change `oidc.claims.sub` to `upn`
 4. Change `oidc.claims.groups` to `roles`
 
 With the updates to the `oidc` section, add 
