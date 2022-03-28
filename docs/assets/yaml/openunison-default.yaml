@@ -7,8 +7,7 @@ network:
   force_redirect_to_tls: false
   createIngressCertificate: true
   ingress_type: nginx
-  ingress_annotations:
-    kubernetes.io/ingress.class: nginx
+  ingress_annotations: {}
 
 cert_template:
   ou: "Kubernetes"
@@ -34,7 +33,7 @@ dashboard:
   label: "k8s-app=kubernetes-dashboard"
   service_name: kubernetes-dashboard
   require_session: true
-  
+
 certs:
   use_k8s_cm: false
 
