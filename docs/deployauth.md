@@ -582,7 +582,7 @@ network_policies:
 
 Most hosted clusters do not support configuring an OpenID Connect identity provider.  The easiest way to manage external access to these clusters is by
 enabling `Impersonation` in OpenUnison.  Using `Impersonation`, OpenUnison provides a reverse proxy in front of your API server, enabling external authentication
-without having to configure an OpenID Connect identity provider.  To enable impersonation, set `enabled_impersonation` to `true` in your values.yaml and make sure
+without having to configure an OpenID Connect identity provider.  To enable impersonation, set `enable_impersonation` to `true` in your values.yaml and make sure
 to include a host name for `openunison.api_server_host`. 
 
 #### kubectl exec/cp/port-forward
