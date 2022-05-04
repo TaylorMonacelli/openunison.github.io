@@ -182,17 +182,7 @@ Once done, update the `orchestra-login-portal` chart:
 helm upgrade orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
 ```
 
-Next, login to your portal.  You'll see two "badges":
-
-![NaaS Portal Login](../assets/images/ou-login-naas.png)
-
-*ActiveMQ Console* - How you can view messages in queues, move messages from the dead letter queue.
-
-*Operator's Console* - Search for users and apply workflows directly
-
-You see these badges because the first user to login is provisioned as an administrator.  The dashboard and tokens are not there because you haven't yet been authorized for access to the cluster.  Your second, third, fourth, user, etc that logs in will not see any badges.
-
-There are multiple ways for you to provision namespaces.  Find the option you want to determine how to provision namespaces and gain access to them.
+Before logging into your OpenUnison, you'll need to configure your NaaS implementation, which is the next section.
 
 ### NaaS Models
 
@@ -219,7 +209,6 @@ openunison:
   .
   .
   az_groups:
-  - k8s-cluster-k8s-administrators
   - k8s-cluster-k8s-administrators-internal
   - k8s-namespace-administrators-k8s-*
   - k8s-namespace-viewer-k8s-*
@@ -252,8 +241,7 @@ openunison:
   .
   use_standard_jit_workflow: false
   az_groups:
-  - k8s-cluster-k8s-administrators
-  - k8s-cluster-k8s-administrators-internal
+  - k8s-cluster-k8s-administrators-external
   - k8s-namespace-administrators-k8s-*
   - k8s-namespace-viewer-k8s-*
   naas:
@@ -348,3 +336,15 @@ When you attempt to create a new `Namespace` you'll be presented with a list of 
 #### Hybrid Management
 
 You can run both models at the same time.  This is useful when you want to use centralized management for the majority of access, but still use local management and self-service for edge cases.  Simply follow the steps for both models!
+
+### Your First Login
+
+Next, login to your portal.  You'll see two "badges":
+
+![NaaS Portal Login](../assets/images/ou-login-naas.png)
+
+*ActiveMQ Console* - How you can view messages in queues, move messages from the dead letter queue.
+
+*Operator's Console* - Search for users and apply workflows directly
+
+You see these badges because the first user to login is provisioned as an administrator.  The dashboard and tokens are not there because you haven't yet been authorized for access to the cluster.  Your second, third, fourth, user, etc that logs in will not see any badges.
