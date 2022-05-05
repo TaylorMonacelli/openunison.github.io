@@ -1,0 +1,198 @@
+swagger: "2.0"
+info:
+  description: "OpenUnison ScaleJS Register API"
+  version: "1.0.0"
+  title: "ScaleJS Register"
+schemes:
+- "https"
+- "http"
+paths:
+  /register/config:
+    get:
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: Configuration for the request
+          schema:
+            $ref: "#/definitions/Config"
+  /register/values:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: name
+        type: string
+        description: The name of the attribute to retrieve values for
+      - in: "query"
+        name: search
+        type: string
+        description: Value to search for
+      responses:
+        "200":
+          description: New values for the attribute
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AttributeValueListItem"
+  /register/submit:
+    post:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        schema:
+          $ref: "#/definitions/RegisterRequest"
+      responses:
+        "500":
+          description: Failed validation
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "200":
+          description: Successful request submitted
+          schema:
+            $ref: "#/definitions/SubmittedResponse"
+          
+        
+securityDefinitions: {}
+definitions: 
+  AttributeValueListItem:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Label for the list item
+      value:
+        type: string
+        description: The value for the list item
+      num:
+        type: integer
+        description: The number of where the item should occur in the order
+  Attribute:
+    type: object
+    description: Configuration for an attribute
+    properties:
+      name:
+        type: string
+        description: The name of the attribute
+      displayName:
+        type: string
+        description: Label for displaying the attribute
+      readOnly:
+        type: boolean
+        description: true if the value of the attribue is read-only
+      required:
+        type: boolean
+        description: true if the value must be included in the request
+      regEx:
+        type: string
+        description: A regular expression that can be used to validate the attribute
+      minChars:
+        type: integer
+        description: The minimum number of required characters needed
+      maxChars:
+        type: integer
+        description: The maximum number of characters allowed
+      unique:
+        type: boolean
+        description: true if only one value of this attribute is allowed in OpenUnison's datastore
+      type:
+        type: string
+        description: What kind of attribute
+        enum:
+        - text
+        - text-area
+        - text-list
+        - list
+      values:
+        type: array
+        description: list of allowed values
+        items:
+          $ref: "#/definitions/AttributeValueListItem"
+      show:
+        type: boolean
+        description: true if the attribute should be shown
+  Config:
+    type: object
+    description: ScaleJS Register Configuration
+    properties:
+      frontPage:
+        type: object
+        description: Metadata for display on the registrion page
+        properties:
+          title:
+            type: string
+            description: Title for the registrion form
+          text:
+            type: string
+            description: Descriptive text for the registration page
+      homeURL:
+        type: string
+        description: The URL for the home page
+      logoutURL:
+        type: string
+        description: The URL to logout
+      attributes:
+        type: array
+        description: List of attributes available in registration
+        items:
+          $ref: "#/definitions/Attribute"
+      attributeNameList:
+        type: array
+        description: List of attribute names
+        items:
+          type: string
+      requireReason:
+        type: boolean
+        description: Should the workflow request require a reason?
+      preSetPassword:
+        type: boolean
+        description: Should a password capture screen be displayed?
+      requireReCaptcha:
+        type: boolean
+        description: Should the form show a Google reCaptcha box?
+      requireTermsAndConditions:
+        type: boolean
+        description: Should terms and conditions checkbox be displayed?
+      reasonIsList:
+        type: boolean
+        description: Are potential reasons being supplied by a list?
+      reasons:
+        type: array
+        description: list of allowed reasons
+        items:
+          type: string
+      submitButtonText:
+        type: string
+        description: Text for the submit button
+      submittedText:
+        type: string
+        description: Text to show the user once the request is submitted
+  RegisterRequest:
+    type: object
+    description: Request for a registration workflow
+    properties:
+      attributes:
+        type: object
+        description: name/value pairs for the submission
+        additionalProperties:
+          type: string
+  ErrorResponse:
+    type: object
+    properties:
+      errors:
+        type: array
+        description: List of errors
+        items:
+          type: string
+  SubmittedResponse:
+    type: object
+    description: Response from a successful registration
+    properties:
+      addNewUsers:
+        type: boolean
+        description: true if the form should be reset to add new requests

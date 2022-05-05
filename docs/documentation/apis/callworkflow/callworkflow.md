@@ -1,0 +1,5 @@
+# CallWorkflow
+
+The `CallWorkflow` `HttpFilter` implements a simple API for directly executing workflows via an API.  The API only has a single endpoint, as defined in the `uri` of your `Application.url[]` configuration.  This API is useful when a system needs to call a workflow on behalf of another user.  For instance if a portal wants to use a service account to call OpenUnison and simply specify the user that the request should apply to.  The API endpoint performs no data validation, so if incorrect data is specified there's nothing that is done to sanitize or block it.  This endpoint should be used with great care and only when the caller can't support the ScaleJS APIs.  The [swagger definition](../../assets/yaml/swagger/api-callworkflow.yaml) can be used to generate an API stub.  While not required, the `UNISON.EXEC.TYPE` request parameter with the value `UNISON.EXEC.ASYNC` should be added to each request so that the request doesn't block until the workflow completes, or the first approval step is executed.  
+
+!!swagger api-callworkflow.json!!

@@ -161,14 +161,13 @@ We'll discuss what the request payload was for request in the next section.
 
 ### CallWorkflow
 
-The `CallWorkflow` `HttpFilter` implements a simple API for directly executing workflows via an API.  The API only has a single endpoint, as defined in the `uri` of your `Application.url[]` configuration.  This API is useful when a system needs to call a workflow on behalf of another user.  For instance if a portal wants to use a service account to call OpenUnison and simply specify the user that the request should apply to.  The API endpoint performs no data validation, so if incorrect data is specified there's nothing that is done to sanitize or block it.  This endpoint should be used with great care and only when the caller can't support the ScaleJS APIs.  The [swagger definition](../../assets/yaml/swagger/api-callworkflow.yaml) can be used to generate an API stub.  While not required, the `UNISON.EXEC.TYPE` request parameter with the value `UNISON.EXEC.ASYNC` should be added to each request so that the request doesn't block until the workflow completes, or the first approval step is executed.  
-
-!!swagger api-callworkflow.json!!
+Use [CallWorkflow](callworkflow/callworkflow.md) to call a workflow directly without additional validation.
 
 ### ScaleJS
 
-#### ScaleJS Main
+The portal that you login to to access your Kubernetes clusters is a collection of APIs called "ScaleJS".  It's built from three different APIs:
 
-#### ScaleJS Register
+* Main - This is the main portal that shows your badges, lets you request access, view reports, etc.
+* [Register](scalejs/register/scalejs-register.md) - This API provides the ability to generate a form for calling a workflow.  It also provides data validation for input.
+* Token - This is the API for display token information back to the user, such as your `id_token`.
 
-#### ScaleJS Token
