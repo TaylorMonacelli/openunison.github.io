@@ -6,6 +6,6 @@ The Register API provides an API for building input to call a workflow, generall
 2. Performs data validation on input based on server side configuration.
 3. Runs as the authenticated user, limiting potential security issues.
 
-The [swagger definition](../../assets/yaml/swagger/api-scalejsregister.yaml) can be used to generate an API stub.
+The [swagger definition](api-scalejsregister.yaml) can be used to generate an API stub.
 
 !!swagger api-scalejsregister.json!!
