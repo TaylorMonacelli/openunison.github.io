@@ -1,0 +1,124 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "description": "OpenUnison CallWorkflow API",
+      "version": "1.0.0",
+      "title": "CallWorkflow"
+    },
+    "schemes": [
+      "https",
+      "http"
+    ],
+    "paths": {
+      "/callworkflow": {
+        "post": {
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "WFCall data",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/WFCall"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The workflow has been successfully executed"
+            },
+            "401": {
+              "description": "The request is not authorized"
+            },
+            "500": {
+              "description": "There was an error, check the logs"
+            }
+          }
+        }
+      }
+    },
+    "securityDefinitions": {
+    },
+    "definitions": {
+      "WFCall": {
+        "type": "object",
+        "properties": {
+          "requestor": {
+            "type": "string",
+            "description": "The id of the user that requested this workflow be called"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the workflow to call"
+          },
+          "uidAttributeName": {
+            "type": "string",
+            "description": "The name of the attribute defined in `WFCall.user.attributes` that defines the subject of the workflow's unique identifier"
+          },
+          "user": {
+            "type": "object",
+            "description": "The subject of the workflow to be executed",
+            "properties": {
+              "uid": {
+                "type": "string",
+                "description": "The user's unique identifier"
+              },
+              "dn": {
+                "type": "string",
+                "description": "The Distinguished Name that represents this user, optional"
+              },
+              "directory": {
+                "type": "string",
+                "description": "The name of the directory this user comes from, optional"
+              },
+              "attributes": {
+                "description": "List of attributes associated with the subject",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the attribute"
+                    },
+                    "values": {
+                      "type": "array",
+                      "description": "List of attribute values",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "groups": {
+                "type": "array",
+                "description": "List of groups the user is a member of",
+                "items": {
+                  "type": "string",
+                  "description": "Name of a group the subject is a member of"
+                }
+              }
+            }
+          },
+          "reason": {
+            "type": "string",
+            "description": "The justification for executing this workflow"
+          },
+          "requestParams": {
+            "type": "object",
+            "description": "Properties to be sent with the execution of the workflow",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
