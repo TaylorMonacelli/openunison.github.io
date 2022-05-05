@@ -11,10 +11,6 @@ jobs:
     steps:
       - name: Checkout main
         uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          pip install mkdocs-render-swagger-plugin
         
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
@@ -22,4 +18,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXTRA_PACKAGES: build-base
+          REQUIREMENTS: .mkdocs-req/requirements.txt
           # GITHUB_DOMAIN: github.myenterprise.com
