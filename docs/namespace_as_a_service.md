@@ -11,11 +11,7 @@ The OpenUnison Namespace as a Service (NaaS) portal gives your users control of 
 4. Support for "Day 2" operations such a resizing quotas and providing access to namespaces without running the kubectl command
 5. Provisioning of non-Kubernetes resources, such as pipelines, git repos, etc.
 
-In the last chapter of Kubernetes: An Enterprise Guide, The OpenUnison NaaS portal is used to build a complete GitOps workflow.  The Kubernetes namespaces, TektonCD pipelines, GitLab repositories, and ArgoCD integrations are all created automatically. 
-
-<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/470755778?h=de22bd8014&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Automate GitOps with Tekton and OpenShift"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
-
-In this video (~17 minutes), we show how OpenUnison was able to orchestrate the entire process so your users can go from nothing, to a fully running service deployed via GitOps, without running a single kubectl command and without the cluster administrators having to do any manual steps.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wKjFIs4ny48" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 There are three modes for using the OpenUnison NaaS to authorize access to a cluster:
 
