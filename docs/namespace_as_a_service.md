@@ -162,23 +162,8 @@ database:
   validation: SELECT 1
 ```
 
-Next, update the orcehstra chart:
+With your configuration updated, the next step is to choose which management model to use.  That is covered in the next section.
 
-```
-helm upgrade orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
-```
-
-Wait for openunison-orchestra to finish creating and for your old container deployment.
-
-***This will take much longer then the orchestra login portal alone.  The orchestra portal needs to wait for ActiveMQ to be available.***
-
-Once done, update the `orchestra-login-portal` chart:
-
-```
-helm upgrade orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
-```
-
-Before logging into your OpenUnison, you'll need to configure your NaaS implementation, which is the next section.
 
 ### NaaS Models
 
@@ -214,13 +199,7 @@ openunison:
         enabled: false
 ```
 
-Next, deploy the helm chart:
-
-```
-helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
-```
-
-Once deployed, login to OpenUnison.  The first user to login will be granted OpenUnison administrator and cluster administrator privileges.  
+If you want to enable Hybrid Management, move on to the next section.  Otherwise skip straight to depoyment.
 
 #### External Groups
 
@@ -273,11 +252,9 @@ openunison:
 ```
 
 
-Finally, deploy the helm chart:
+Next, determine if you can pre-load groups from an external identity provider, otherwise skip straight to Deployment.
 
-```
-helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
-```
+
 
 ##### Choosing Okta Groups
 
@@ -309,12 +286,6 @@ oidc:
   type: okta
 ```
 
-Finally, upgrade your chart deployment:
-
-```
-helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
-```
-
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Okta deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
 
 ##### Limiting AD/LDAP Groups
@@ -323,15 +294,40 @@ If you want to limit which groups can be chosen for managing access while using 
 is `cn=users,dc=ent2k12,dc=domain,dc=com`, the value for `active_directory.group_search_base` would be `cn=AWS`.  If you have already deployed 
 `orchestra-k8s-cluster-management-by-group`, upgrade it with your new values.yaml:
 
-```
-helm upgrade cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
-```
+
 
 When you attempt to create a new `Namespace` you'll be presented with a list of up to ten groups from your Active Directory or LDAP deployment.  As you type the first letters of the group you want the list will update.  You can click the name of the group you want to use.
 
 #### Hybrid Management
 
 You can run both models at the same time.  This is useful when you want to use centralized management for the majority of access, but still use local management and self-service for edge cases.  Simply follow the steps for both models!
+
+
+### Deployment
+
+Next, update the orcehstra chart:
+
+```
+helm upgrade orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
+```
+
+Wait for openunison-orchestra to finish creating and for your old container deployment.
+
+***This will take much longer then the orchestra login portal alone.  The orchestra portal needs to wait for ActiveMQ to be available.***
+
+Once done, update the `orchestra-login-portal` chart:
+
+```
+helm upgrade orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+```
+
+Finally, install the `cluster-management` chart:
+
+```
+helm install cluster-management tremolo/openunison-k8s-cluster-management -n openunison -f /path/to/values.yaml
+```
+
+Once the `cluster-management` chart is deplotyed, you can continue to **Your First Login**
 
 ### Your First Login
 
@@ -344,3 +340,7 @@ Next, login to your portal.  You'll see two "badges":
 *Operator's Console* - Search for users and apply workflows directly
 
 You see these badges because the first user to login is provisioned as an administrator.  The dashboard and tokens are not there because you haven't yet been authorized for access to the cluster.  Your second, third, fourth, user, etc that logs in will not see any badges.
+
+## Next Steps
+
+With the Namespace as a Portal deployed, you can go to the [user's manual](/documentation/naas/) to see how users can login to begin requesting new namespaces and managing access!
