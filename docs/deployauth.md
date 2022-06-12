@@ -9,14 +9,13 @@ You can quickly [upgrade your existing OpenUnison deployment](../../upgrading) w
 
 ## Deploying the Login Portal
 
-These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explination, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as suscintly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.  There are three pieces to the deployment:
+These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explination, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as suscintly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.  There are four steps to the deployment are:
 
 | Deployment Phase | Description | Approximite Time |
 | ---------------- | ----------- | ---------------- |
 | Pre-requisites   | Deploy the `Ingress` controller and dashboard. | This is dependent on how long it takes to deploy and validate your `Ingress` controller of choice and accompanying network infrastructure such as load balancers. |
-| Base Configuration | Create the openunison `Namespace`, initial `Secret`, and deploy the operator | Less then 5 minutes |
-| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and updating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your pre-requisites are ready |
-| Deploy the Portal | Running the last two Helm charts that deploy OpenUnison using your values.yaml. | Less then 5 minutes |
+| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and generating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your pre-requisites are ready |
+| Deploy the Portal | Use the `ouctl` tool to deploy your portal | Less then 5 minutes |
 | *Optional* - Ingrating Your Cluster | If you're using OpenID Connect to integrate directly with your cluster, you'll need to configure your cluster to trust OpenUnison for authentication | Dependent on the Kubernetes distrobution, usually less then five minutes |
 
 In any OpenUnison deployment the most amount of time spent is on getting the networking for your cluster working and getting the right authentication configuration for your identity store.  Once those are ready the rest of the deployment is very direct.
@@ -40,67 +39,14 @@ Once your `Ingress` controller is deployed, the next step is to deploy the dashb
 The [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) is a powerful and simple way to work with your cluster without having access to a command line.  It is accessed securely by using the user's own permissions, with the dashboard its self having no permissions in your cluster.  OpenUnison manages the login process for you, so there's no need to upload a kubectl configuration to the dashboard to make it work.  The dashboard can be deployed with:
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 ```
+
+***DO NOT SETUP AN INGRESS FOR YOUR DASHBOARD*** - OpenUnison takes care of that for you.
 
 Having deployed the dashboard, next we'll deploy the base configuration for OpenUnison.
 
-### Base Configuration
 
-The base configuration deploys the groundwork for running OpenUnison.  OpenUnison is a powerfull authentication and automation platform that can be used with all of your cluster applications and APIs.  We wanted to make this complexity as easy as possible to manage so we encoded most of the deployment and validation steps in automation technologies.  You'll need [helm version 3+](https://helm.sh/docs/intro/install/) to finish the deployment.
-
-**Create the OpenUnison namespace:**
-
-First, create the `Namespace` that will host OpenUnison.  If using [Istio](../ingresses/istio) or another `Ingress` controller that requires the `Namespace` to be labeled, now is a good time to apply those labels.
-
-
-```
-kubectl create ns openunison
-```
-
-**Setup the helm repo with the charts:**
-
-Add OpenUnison's Helm repos to your system.  We host these repos on our own services behind our certificate.
-
-```
-helm repo add tremolo https://nexus.tremolo.io/repository/helm/
-helm repo update
-```
-
-**Install the operator**
-
-Next, install the operator.  The operator is responsble for generating OpenUnison's configuration and consolidating certificates and keys into a central keystore used by OpenUnison.  You can [customize the operator's chart](../documentation/operator) for your environment, but most deployments can use the defaults.
-
-```
-helm install openunison tremolo/openunison-operator --namespace openunison
-```
-
-Wait until the operator pod is running.  
-
-```
-while [[ $(kubectl get pods -l app=openunison-operator -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for operator pod" && sleep 1; done
-```
-
-**Create a `Secret` that will be used for storing secret information like passwords and shared secrets.**  
-
-OpenUnison separates secret information out of it's configurations.  No secret data should ever be stored in a Helm chart.  A `Secret` object needs to be created to store OpenUnison's secret data (such as passwords, keys, and tokens).  The operator will pull this `Secret` in when generating OpenUnison's configuration.
-
-The below example uses random data.  Do **NOT** use this exact `Secret`, create your own random data for the values
-that don't contain an `&`.  A password generator is a great way to generate this data.
-
-Additionally, each authentication method will require its own secret data so this `Secret` will need to be updated.
-
-```
-apiVersion: v1
-type: Opaque
-metadata:
-  name: orchestra-secrets-source
-  namespace: openunison
-data:
-  K8S_DB_SECRET: UTJhQzVNNjBMbWljc3Y0UEphYVhsWlRRbw==
-  unisonKeystorePassword: SGRVSEg1c1Z0ZUdaTjFxdjJEUHlnYk1wZQ==
-kind: Secret
-```
 
 ### Site Specific Configuration
 
@@ -118,39 +64,46 @@ Once you've chosen an identity source, return here to finish the installation.
 
 ### Deploy the Portal
 
-With your values.yaml and `Secret` configured for your authentication source, the last two steps are to deploy the final charts.  There are two charts.  The first deploys a `Pod` that validates your configuration and then deploys the OpenUnison pod, which in addition to your authenticaiton portal, hosts admission controllers that validates OpenUnison's configuration CRDs.  The second chart hosts the configuration CRDs that are generated based on your values.yaml.  If the first chart doesn't deploy properly your API server will not deploy the OpenUnison CRDs because the admission controlers are configured to fail when the  API server can't reach the admission controllers.
+OpenUnison is deployed using a series of Helm Charts that cover different aspects of the deployment between configuration, integration with the API server, and the operator that manages certificates for you.  You can [deploy these charts manually](#manual-deployment), but the `ouctl` command makes this much easier.  First, download `ouctl` for the correct platform:
 
-**Install the orchestra helm chart**
+* [Linux](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.1-linux)
+* [Windows](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.1-win.exe)
+* [MacOS](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.1-macos)
 
-First, install the `orchestra` chart, which does the configuration check and starts the openunison `Pod`.
-
-```
-helm install orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
-```
-
-If this deployment fails, it's likely from a misconfiguration of your values.yaml.  See [troubleshooting your orchestra deployment failure](../knowledgebase/orchestra_deployment_failed) for instructions on how to debug.
-
-Wait until the orchestra pods are running.  There are validating webhook configurations that will fail in the last step if we 
-don't wait.
+Rename the downloaded file to `ouctl` (or `ouctl.exe` on windows).  Next, download the OpenUnison helm repo:
 
 ```
-while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+helm repo add tremolo https://nexus.tremolo.io/repository/helm/
+helm repo update
 ```
 
-**Deploy Portal Configuration**
+The next step is to create a file with your secret in it for AD/LDAP, OIDC, or GitHub login.  
 
-Last step, deploy the orchestra login portal chart with the ***same values.yaml as the previous chart***:
+---
+**SECURITY NOTE**
+
+You shouldn't use the `echo` command to create this file for two important reasons:
+
+1. It adds an extra `\n` at the end
+2. It will store your secret information in your shell's history file
+
+Best to create this file manually and add the secret to it. ***NOTE***: Do not base64 encode the data before putting it in this file.  The `ouctl` command will handle that for you.
+
+---
+
+Finally, deploy the portal:
 
 ```
-helm install orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+ouctl install-auth-portal -s /path/to/secret/file /path/to/yaml
 ```
 
-If you're going to integrate your cluster with OpenID Connect (most on-prem clusters will be integrated this way), the final step is to
-[enable SSO with your Kubernetes cluster](#integrating-your-kubernetes-cluster).  If you configured `enable_impersonation` to `true`, skip this step.
+Assuming there are no issues, OpenUnison will be deployed and ready for access.  The `ouctl` command is safe to re-run.  If you want to update the secret, you can provide the `-s` again.  If you just want to upgrade the charts, you can run `ouctl` without `-s` and it will just update the charts.
 
-Finally, login to your portal by going to https://`network.openunison_host`/, where `network.openunison_host` is the host name you specified in your values.yaml.  If everything was setup correctly, you can now start working with your cluster!
+If you're going to integrate your cluster with OpenID Connect (most on-prem clusters will be integrated this way), the final step is to enable SSO with your Kubernetes cluster. If you configured enable_impersonation to true, skip this step.
 
-Learn to use the OpenUnison Login Portal by exploring our [user guide](../../user-manuals/login-portal).
+Finally, login to your portal by going to https://`network.openunison_host`/, where `network.openunison_host` is the host name you specified in your values.yaml. If everything was setup correctly, you can now start working with your cluster!
+
+Learn to use the OpenUnison Login Portal by exploring our [user guide](../documentation/login-portal).
 
 ### Integrating Your Kubernetes Cluster
 
@@ -247,7 +200,7 @@ The detailed explination of each setting is below:
 | active_directory.con_type | `ldaps` for secure, `ldap` for plain text |
 | active_directory.srv_dns | If `true`, OpenUnison will lookup domain controllers by the domain's SRV DNS record |
 
-Finally, update the `orchestra-secrets-source` `Secret` with a key called `AD_BIND_PASSWORD` that contains the base64 encoded password for the service account named
+The secret file used with the `ouctl` command will contain the password for your service account.  If configuring OpenUnison manually, update the `orchestra-secrets-source` `Secret` with a key called `AD_BIND_PASSWORD` that contains the base64 encoded password for the service account named
 in `activedirectory.bind_dn`.
 
 #### RBAC Bindings
@@ -351,8 +304,7 @@ You can customize these values based on your identity provider's needs.
 
 If you prefer to keep your identity provider's `client_id` as a `Secret`, store it as `OIDC_CLIENT_ID` in the `orchestra-secrets-source` `Secret` in the `openunison` namespace and set `oidc.client_id_is_secret: true` in your values.yaml.  The `client_id` will be read from the `Secret` instead of being stored directly in the configuration object.
 
-
-Finally, add `OIDC_CLIENT_SECRET` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your identity provider.
+The secret file used with the `ouctl` command will contain the client secret.  If you want to configure OpenUnison manually, add `OIDC_CLIENT_SECRET` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your identity provider.
 
 ***If using `echo DATA | base64` to encode your `Secret`, make sure to use `-n` to remove the excess carriage return, ie `echo -n DATA | base64`.  Your authentication will fail otherwise.***
 
@@ -405,7 +357,7 @@ You can specify multiple teams by commas.
 | github.client_id | The client id from your OAuth2 application configuration |
 | github.teams | A comma separated list of authorized teams and organizations.  An organization is listed in the format `OrgName/` and a team in the formate `OrgName/TeamName` |
 
-Finally, add `GITHUB_SECRET_ID` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your OAuth app.
+The secret file used with the `ouctl` command will contain the GitHub client secret.  If configuring OpenUnison manually, add `GITHUB_SECRET_ID` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your OAuth app.
 
 #### RBAC Bindings
 
@@ -470,6 +422,7 @@ Additionally, users may also have:
 To stand up your identity provider, you'll need to use OpenUnison's saml2 metadata URL.  The url is https://network.openunison_host/auth/forms/saml2_rp_metadata.jsp. 
 For instance if your `network.openunison_host` is k8sou.domain.com the metadata URL will be `https://k8sou.domain.com/auth/forms/saml2_rp_metadata.jsp`.
 
+There is no client secret with SAML2, so you'll skip the `-s` parameter with the `ouctl` command.
 
 #### RBAC Bindings
 
@@ -687,3 +640,98 @@ will be the same as how you would specify them in an RBAC binding.
 ## Integrating Other Applications
 
 OpenUnison can support the authentication for your entire environment, not just Kubernetes!  Take a look at our [guides for well known applications](../applications).  Also check out our documentation for [SSO application integration](../documentation/custom-sso).
+
+## Alternate Deployment Methods
+
+### Manual Deployment
+
+#### Base Configuration
+
+The base configuration deploys the groundwork for running OpenUnison.  OpenUnison is a powerfull authentication and automation platform that can be used with all of your cluster applications and APIs.  We wanted to make this complexity as easy as possible to manage so we encoded most of the deployment and validation steps in automation technologies.  You'll need [helm version 3+](https://helm.sh/docs/intro/install/) to finish the deployment.
+
+**Create the OpenUnison namespace:**
+
+First, create the `Namespace` that will host OpenUnison.  If using [Istio](../ingresses/istio) or another `Ingress` controller that requires the `Namespace` to be labeled, now is a good time to apply those labels.
+
+
+```
+kubectl create ns openunison
+```
+
+**Setup the helm repo with the charts:**
+
+Add OpenUnison's Helm repos to your system.  We host these repos on our own services behind our certificate.
+
+```
+helm repo add tremolo https://nexus.tremolo.io/repository/helm/
+helm repo update
+```
+
+**Install the operator**
+
+Next, install the operator.  The operator is responsble for generating OpenUnison's configuration and consolidating certificates and keys into a central keystore used by OpenUnison.  You can [customize the operator's chart](../documentation/operator) for your environment, but most deployments can use the defaults.
+
+```
+helm install openunison tremolo/openunison-operator --namespace openunison
+```
+
+Wait until the operator pod is running.  
+
+```
+while [[ $(kubectl get pods -l app=openunison-operator -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for operator pod" && sleep 1; done
+```
+
+**Create a `Secret` that will be used for storing secret information like passwords and shared secrets.**  
+
+OpenUnison separates secret information out of it's configurations.  No secret data should ever be stored in a Helm chart.  A `Secret` object needs to be created to store OpenUnison's secret data (such as passwords, keys, and tokens).  The operator will pull this `Secret` in when generating OpenUnison's configuration.
+
+The below example uses random data.  Do **NOT** use this exact `Secret`, create your own random data for the values
+that don't contain an `&`.  A password generator is a great way to generate this data.
+
+Additionally, each authentication method will require its own secret data so this `Secret` will need to be updated.
+
+```
+apiVersion: v1
+type: Opaque
+metadata:
+  name: orchestra-secrets-source
+  namespace: openunison
+data:
+  K8S_DB_SECRET: UTJhQzVNNjBMbWljc3Y0UEphYVhsWlRRbw==
+  unisonKeystorePassword: SGRVSEg1c1Z0ZUdaTjFxdjJEUHlnYk1wZQ==
+kind: Secret
+```
+
+#### Deploy the Portal
+
+**Install the orchestra helm chart**
+
+First, install the `orchestra` chart, which does the configuration check and starts the openunison `Pod`.
+
+```
+helm install orchestra tremolo/orchestra --namespace openunison -f /path/to/values.yaml
+```
+
+If this deployment fails, it's likely from a misconfiguration of your values.yaml.  See [troubleshooting your orchestra deployment failure](../knowledgebase/orchestra_deployment_failed) for instructions on how to debug.
+
+Wait until the orchestra pods are running.  There are validating webhook configurations that will fail in the last step if we 
+don't wait.
+
+```
+while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+```
+
+**Deploy Portal Configuration**
+
+Last step, deploy the orchestra login portal chart with the ***same values.yaml as the previous chart***:
+
+```
+helm install orchestra-login-portal tremolo/orchestra-login-portal --namespace openunison -f /path/to/values.yaml
+```
+
+If you're going to integrate your cluster with OpenID Connect (most on-prem clusters will be integrated this way), the final step is to
+[enable SSO with your Kubernetes cluster](#integrating-your-kubernetes-cluster).  If you configured `enable_impersonation` to `true`, skip this step.
+
+Finally, login to your portal by going to https://`network.openunison_host`/, where `network.openunison_host` is the host name you specified in your values.yaml.  If everything was setup correctly, you can now start working with your cluster!
+
+Learn to use the OpenUnison Login Portal by exploring our [user guide](../../user-manuals/login-portal).

@@ -44,7 +44,9 @@ Once your application is registered, the next step is to create a client secret.
 
 ![Create Client Secret](../../../assets/images/identity-providers/azuread/2.png)
 
-Click on **+ New client secret**, give it a description and a life span.  How long the secret is valid is based on your requirements and compliance needs.  Once you click **Add**, the secret will become available for you to copy.  Copy it, and store it to the `OIDC_CLIENT_SECRET` key in the `orchestra-secrets-source` `Secret`.  ***If using `echo` to based64 encode the data, make sure to use `echo -n` to avoid adding an extra newline!***
+Click on **+ New client secret**, give it a description and a life span.  How long the secret is valid is based on your requirements and compliance needs.  Once you click **Add**, the secret will become available for you to copy.  Copy it, and store it in a file for when you're ready to deploy the portal.
+
+**For Manual Deployment**: Copy it, and store it to the `OIDC_CLIENT_SECRET` key in the `orchestra-secrets-source` `Secret`.  ***If using `echo` to based64 encode the data, make sure to use `echo -n` to avoid adding an extra newline!***
 
 With the client secret created and stored in your cluster, the next step is to setup your token.  Next, click on **Token configuration** on the left hand side.  Next, click on **Add optional claim** and choose `email`, `family_name`,`given_name`, `upn`, and `preferred_username` and click **Add**.  When AzureAD asks if you want to add the scopes automatically, agree.  Adding these claims isn't required, but will make it much easier to manage your integration.
 

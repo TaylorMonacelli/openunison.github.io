@@ -90,9 +90,7 @@ Once you have your [Authentication Portal](../deployauth/), database, and SMTP s
  add your database password and SMTP password to your `orchestra-secrets-source` `Secret` in the openunison namespace.  Assuming
 you're using the testing MariaDB and SMTP Blackhole from above:
 
-```
-kubectl patch secret orchestra-secrets-source -n openunison --patch '{"data":{"OU_JDBC_PASSWORD":"c3RhcnR0MTIz","SMTP_PASSWORD":"ZG9lc25vdG1hdHRlcg=="}}'
-```
+
 
 Next, update your values.yaml by setting `openunison.enable_provisioning: true`, adding the below `az_rules`, and uncommenting the `database` and `smtp` sections of your values.yaml.
 As an example, the below will work with the testing database and SMTP server:
@@ -189,17 +187,13 @@ openunison:
   .
   .
   .
-  az_groups:
-  - k8s-cluster-k8s-administrators-internal
-  - k8s-namespace-administrators-k8s-*
-  - k8s-namespace-viewer-k8s-*
   naas:
     groups:
       internal:
         enabled: false
 ```
 
-If you want to enable Hybrid Management, move on to the next section.  Otherwise skip straight to depoyment.
+If you want to enable Hybrid Management, move on to the next section.  Otherwise skip straight to [deployment](#deployment).
 
 #### External Groups
 
@@ -215,10 +209,6 @@ openunison:
   .
   .
   use_standard_jit_workflow: false
-  az_groups:
-  - k8s-cluster-k8s-administrators-external
-  - k8s-namespace-administrators-k8s-*
-  - k8s-namespace-viewer-k8s-*
   naas:
     groups:
       external:
@@ -238,11 +228,6 @@ openunison:
   .
   .
   use_standard_jit_workflow: false
-  az_groups:
-  - k8s-cluster-k8s-administrators
-  - k8s-cluster-k8s-administrators-internal
-  - k8s-namespace-administrators-k8s-*
-  - k8s-namespace-viewer-k8s-*
   naas:
     groups:
       external:
@@ -252,7 +237,7 @@ openunison:
 ```
 
 
-Next, determine if you can pre-load groups from an external identity provider, otherwise skip straight to Deployment.
+Next, determine if you can pre-load groups from an external identity provider, otherwise skip straight to [Deployment](#deployment).
 
 
 
@@ -305,6 +290,40 @@ You can run both models at the same time.  This is useful when you want to use c
 
 ### Deployment
 
+The `ouctl` command you used when deploying the authentication portal will detect the changes to your configuration and update the deployment accordingly.  Once you have your secret files and updated yaml, run:
+
+```
+ouctl install-auth-portal -b /path/to/db/secret -t /path/to/smtp/secret /path/to/openunison-values.yaml
+```
+
+This run will take longer then the authentication portal deployment takes because it's also deploying an ActiveMQ service to manage workflow tasks.  Once completed, you can move on to your first login.
+
+### Your First Login
+
+Next, login to your portal.  You'll see two "badges":
+
+![NaaS Portal Login](../assets/images/ou-login-naas.png)
+
+*ActiveMQ Console* - How you can view messages in queues, move messages from the dead letter queue.
+
+*Operator's Console* - Search for users and apply workflows directly
+
+You see these badges because the first user to login is provisioned as an administrator.  The dashboard and tokens are not there because you haven't yet been authorized for access to the cluster.  Your second, third, fourth, user, etc that logs in will not see any badges.
+
+## Next Steps
+
+With the Namespace as a Portal deployed, you can go to the [user's manual](/documentation/naas/) to see how users can login to begin requesting new namespaces and managing access!
+
+## Alternate Deployment Steps
+
+### Manual Deployment
+
+First, update the `orchestra-secrets-source` `Secret` with the passwords for your database and SMTP service:
+
+```
+kubectl patch secret orchestra-secrets-source -n openunison --patch '{"data":{"OU_JDBC_PASSWORD":"c3RhcnR0MTIz","SMTP_PASSWORD":"ZG9lc25vdG1hdHRlcg=="}}'
+```
+
 Next, update the orcehstra chart:
 
 ```
@@ -328,19 +347,3 @@ helm install cluster-management tremolo/openunison-k8s-cluster-management -n ope
 ```
 
 Once the `cluster-management` chart is deplotyed, you can continue to **Your First Login**
-
-### Your First Login
-
-Next, login to your portal.  You'll see two "badges":
-
-![NaaS Portal Login](../assets/images/ou-login-naas.png)
-
-*ActiveMQ Console* - How you can view messages in queues, move messages from the dead letter queue.
-
-*Operator's Console* - Search for users and apply workflows directly
-
-You see these badges because the first user to login is provisioned as an administrator.  The dashboard and tokens are not there because you haven't yet been authorized for access to the cluster.  Your second, third, fourth, user, etc that logs in will not see any badges.
-
-## Next Steps
-
-With the Namespace as a Portal deployed, you can go to the [user's manual](/documentation/naas/) to see how users can login to begin requesting new namespaces and managing access!
