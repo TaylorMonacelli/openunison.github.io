@@ -1,0 +1,100 @@
+network:
+  openunison_host: "k8sou.apps.ou.tremolo.dev"
+  dashboard_host: "k8sdb.apps.ou.tremolo.dev"
+  api_server_host: "k8sapi.apps.ou.tremolo.dev"
+  session_inactivity_timeout_seconds: 900
+  k8s_url: https://192.168.2.130:6443
+  force_redirect_to_tls: false
+  createIngressCertificate: true
+  ingress_type: nginx
+  ingress_annotations: {}
+
+cert_template:
+  ou: "Kubernetes"
+  o: "MyOrg"
+  l: "My Cluster"
+  st: "State of Cluster"
+  c: "MyCountry"
+
+
+image: docker.io/tremolosecurity/openunison-k8s
+myvd_config_path: "WEB-INF/myvd.conf"
+k8s_cluster_name: kubernetes-satelite
+enable_impersonation: false
+
+impersonation:
+  use_jetstack: true
+  jetstack_oidc_proxy_image: docker.io/tremolosecurity/kube-oidc-proxy:latest
+  explicit_certificate_trust: true
+
+dashboard:
+  namespace: "kubernetes-dashboard"
+  cert_name: "kubernetes-dashboard-certs"
+  label: "k8s-app=kubernetes-dashboard"
+  service_name: kubernetes-dashboard
+  require_session: true
+
+certs:
+  use_k8s_cm: false
+
+trusted_certs:
+  - name: ldaps
+    pem_b64: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURORENDQWh5Z0F3SUJBZ0lRYlJOajZSS3F0cVZQdlc2NXFaeFhYakFOQmdrcWhraUc5dzBCQVFVRkFEQWkKTVNBd0hnWURWUVFEREJkQlJFWlRMa1ZPVkRKTE1USXVSRTlOUVVsT0xrTlBUVEFlRncweE5EQXpNamd3TVRBMQpNek5hRncweU5EQXpNalV3TVRBMU16TmFNQ0l4SURBZUJnTlZCQU1NRjBGRVJsTXVSVTVVTWtzeE1pNUVUMDFCClNVNHVRMDlOTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEyczlKa2VOQUhPa1EKMVFZSmdqZWZVd2Nhb2dFTWNhVy9rb0ErYnU5eGJyNHJIeS8yZ04va2M4T2tvUHV3Si9uTmxPSU8rcytNYm5YUwpMOW1VVEM0T0s3dHJrRWppS1hCK0QrVlNZeTZpbVhoNnpwQnROYmVaeXgrcmRCbmFPdjNCeVpSbm5FQjhMbWhNCnZIQSs0Zi90OWZ4LzJ2dDZ3UHgvL1ZnSXE5eXVZWVVRUkxtMVdqeVVCRnJaZUdvU3BQbTBLZXdtK0IwYmhtTWIKZHlDKzNmaGFLQytVazFOUG9kRTI5NzNqTEJaSmVsWnhzWlk0MFd3OHpZUXdkR1lJYlhxb1RjKzFhL3g0ZjFFbgptNEFOcWdnSHR3K05xOHpoc3MzeVR0WStVWUtEUkJJTGRMVlpRaEhKRXhlMGtBZWlzZ014SS9iQndPMUhickZWCit6U25rK252Z1FJREFRQUJvMll3WkRBekJnTlZIU1VFTERBcUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SUcKQ2lzR0FRUUJnamNVQWdJR0NDc0dBUVVGQndNRE1CMEdBMVVkRGdRV0JCVHlKVWZZNjZ6WWJtOWkweGVZSHVGSQo0TU43dURBT0JnTlZIUThCQWY4RUJBTUNCU0F3RFFZSktvWklodmNOQVFFRkJRQURnZ0VCQU01a3o5T0tOU3VYCjh3NE5PZ25mSUZkYXpkMG5QbElVYnZEVmZRb055OVEwUzFTRlVWTWVrSVBOaVZoZkd6eWE5SXdSdEdiMVZhQlEKQVEyT1JJekhyOEEycjVVTkx4M21GanBKbWVPeFF3bFYwWCtnOHMrMjUzS1ZGeE9wUkU2eXlhZ24vQnh4cHRUTAphMVo0cWVRSkxENDJsZDFxR2xSd0Z0VlJtVkZaelZYVnJwdTdOdUZkM3Zsbm5PL3FLV1hVK3VNc2ZYdHNsMTNuCmVjMWt3MUV3cTJqbks4V0ltS1RRNy85V2JhSVkwZ3g4bW93Q0pTT3NScTBURTd6Sy9ONTVkck4xd1hKVnhXZTUKNE4zMmVDcW90WHk5ajlsemRrTmE3YXdiOXEzOG5XVnhQK3ZhNWpxTklEbGxqQjZ0RXh5NW4zczd0NktLNmc1agpUWmdWcXJaMyttcz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQoK
+
+monitoring:
+  prometheus_service_account: system:serviceaccount:monitoring:prometheus-k8s
+
+# DO NOT CONFIGURURE ANY AUTHENTICATION
+
+network_policies:
+  enabled: false
+  ingress:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: ingress-nginx
+  monitoring:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: monitoring
+  apiserver:
+    enabled: false
+    labels:
+      app.kubernetes.io/name: kube-system
+
+services:
+  enable_tokenrequest: false
+  token_request_audience: api
+  token_request_expiration_seconds: 600
+  node_selectors: []
+  
+openunison:
+  replicas: 1
+  non_secret_data:
+    K8S_DB_SSO: oidc
+    PROMETHEUS_SERVICE_ACCOUNT: system:serviceaccount:monitoring:prometheus-k8s
+    SHOW_PORTAL_ORGS: "false"
+  secrets: []
+  html:
+    image: docker.io/tremolosecurity/openunison-k8s-html
+  enable_provisioning: false
+  #az_groups:
+  #- CN=k8s-users,CN=Users,DC=ent2k12,DC=domain,DC=com
+
+#myvd_configmap: myvdconfig
+
+# For Namespace as a Service
+
+#database:
+#  hibernate_dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+#  quartz_dialect: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+#  driver: com.mysql.jdbc.Driver
+#  url: jdbc:mysql://mariadb.mariadb.svc.cluster.local:3306/unison
+#  user: unison
+#  validation: SELECT 1
+
+#smtp:
+#  host: blackhole.blackhole.svc.cluster.local
+#  port: 1025
+#  user: "none"
+#  from: donotreply@domain.com
+#  tls: false

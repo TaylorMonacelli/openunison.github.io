@@ -51,7 +51,7 @@ and token links.  You can customize the name of these labels by updateding your 
 
 With your control plane ready to add new clusters, the next step is to onboard a new cluster.  You'll need three things:
 
-1. An OpenUnison values.yaml with some specific configuration options
+1. An [OpenUnison values.yaml](../assets/yaml/openunison-satelite-default.yaml) with some specific configuration options
 2. The `admin.conf` (or equivalent) for your satelite cluster
 3. Being logged into your control plane and having that configuration merged with the administrative configuration for your satelite.
 
@@ -64,7 +64,7 @@ To deploy and integrate your satelite:
 
 ```
 kubectl ctx kubernetes-admin@kubernetes
-kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 ouctl install-satelite /path/to/satelite/openunison/values.yaml admin-user@openunison-control-plane kubernetes-admin@kubernetes
 ```
 
