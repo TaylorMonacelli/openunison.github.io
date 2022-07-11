@@ -211,7 +211,7 @@ Once the mapping is created, the next step is to define the `Application` object
 
 ```yaml linenums="1"
 ---
-apiVersion: openunison.tremolo.io/v1
+apiVersion: openunison.tremolo.io/v2
 kind: Application
 metadata:
   labels:
@@ -331,7 +331,7 @@ Next, create the below object in your cluster:
 
 ```yaml linenums="1"
 ---
-apiVersion: openunison.tremolo.io/v1
+apiVersion: openunison.tremolo.io/v2
 kind: Application
 metadata:
   name: prometheus
@@ -358,6 +358,10 @@ spec:
       azFail: default-login-failure
     overrideHost: true
     overrideReferer: true
+    proxyConfiguration:
+      connectionTimeoutMillis: 5000
+      requestTimeoutMillis: 5000
+      socketTimeoutMillis: 5000
   cookieConfig:
     sessionCookieName: tremolosession
     domain: "#[OU_HOST]"
@@ -385,7 +389,8 @@ Here is the details of this configuration:
 | 25 - 26 | The `results` section defines what happens in response to certain events.  Here, in response to the `auFail` and `azFail` events, the user is redirected to an invalid credentials page |
 | 27 | Tells OpenUnison to send the host defined in the requested URL in the `HOST` header, usually set to `true` |
 | 28 | Tells OpenUnison to update the host in redirects to what is the requested URL, usually set to `true` |
-| 29 - 35 | Determines how the user's session cookie should be configured.  This section should generally be left unchanged when working with Kubernetes |
+| 29 - 32 | Provide OpenUnison with custom timeouts for your application.  Setting these timeouts will help if applications take too long to respond |
+| 33 - 39 | Determines how the user's session cookie should be configured.  This section should generally be left unchanged when working with Kubernetes |
 
 Once the `Application` object has been added to the `openunison` namespace, you can access Prometheus by going to `https://openunison.domain.com/prometheus`.  There's no need to create any new `Ingress` objects because you're re-using OpenUnison's own existing `Ingress`.  
 
@@ -468,7 +473,7 @@ Next, create the `Application` object:
 
 ```yaml linenums="1"
 ---
-apiVersion: openunison.tremolo.io/v1
+apiVersion: openunison.tremolo.io/v2
 kind: Application
 metadata:
   name: prometheus
@@ -479,7 +484,7 @@ spec:
   urls:
   - hosts:
     - prometheus.domain.com
-    filterChain:
+    filterChain:  
     - className: com.tremolosecurity.proxy.filters.XForward
       params:
         createHeaders: "true"
@@ -495,6 +500,10 @@ spec:
       azFail: default-login-failure
     overrideHost: true
     overrideReferer: true
+    proxyConfiguration:
+      connectionTimeoutMillis: 5000
+      requestTimeoutMillis: 5000
+      socketTimeoutMillis: 5000
   cookieConfig:
     sessionCookieName: tremolosession
     domain: "prometheus.domain.com"
@@ -522,7 +531,8 @@ Here is the details of this configuration:
 | 25 - 26 | The `results` section defines what happens in response to certain events.  Here, in response to the `auFail` and `azFail` events, the user is redirected to an invalid credentials page |
 | 27 | Tells OpenUnison to send the host defined in the requested URL in the `HOST` header, usually set to `true` |
 | 28 | Tells OpenUnison to update the host in redirects to what is the requested URL, usually set to `true` |
-| 29 - 35 | Determines how the user's session cookie should be configured.  Only the `domain` should be changed to reflect the host of the application's URL |
+| 29 - 32 | Provide OpenUnison with custom timeouts for your application.  Setting these timeouts will help if applications take too long to respond |
+| 33 - 39 | Determines how the user's session cookie should be configured.  This section should generally be left unchanged when working with Kubernetes |
 
 Next, create a `Trust`:
 
