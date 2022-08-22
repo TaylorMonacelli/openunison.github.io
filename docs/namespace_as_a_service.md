@@ -92,17 +92,14 @@ you're using the testing MariaDB and SMTP Blackhole from above:
 
 
 
-Next, update your values.yaml by setting `openunison.enable_provisioning: true`, adding the below `az_rules`, and uncommenting the `database` and `smtp` sections of your values.yaml.
+Next, update your values.yaml by setting `openunison.enable_provisioning: true`, `openunison.use_standard_jit_workflow: false`,  and uncommenting the `database` and `smtp` sections of your values.yaml.
 As an example, the below will work with the testing database and SMTP server:
 
 ```
 openunison:
   enable_provisioning: true
   use_standard_jit_workflow: false
-  az_groups:
-  - k8s-cluster-k8s-administrators
-  - k8s-namespace-administrators-k8s-*
-  - k8s-namespace-viewer-k8s-*
+
 
 database:
   hibernate_dialect: org.hibernate.dialect.MySQL5InnoDBDialect
