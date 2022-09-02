@@ -106,7 +106,7 @@ openunison:
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
-  enable_provisioning: false
+  enable_provisioning: true
   use_standard_jit_workflow: false
   #az_groups:
   #- CN=k8s-users,CN=Users,DC=ent2k12,DC=domain,DC=com
