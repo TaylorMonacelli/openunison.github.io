@@ -187,7 +187,7 @@ openunison:
   naas:
     groups:
       internal:
-        enabled: false
+        enabled: true
 ```
 
 If you want to enable Hybrid Management, move on to the next section.  Otherwise skip straight to [deployment](#deployment).

@@ -226,3 +226,17 @@ Once deployed, refresh your portal and you'll see a new option underneath **Loca
 ![OpenUnison with new cluster](assets/images/ou-portal-new-cluster.png)
 
 Once OpenUnison is running on your new cluster, clicking on either badge will bring you to the dashboard or tokens page for your new cluster.  When using the [oulogin plugin](../kubectlplugin) use the host for your new cluster, not your control plane cluster.
+
+### Adding Satelite Clusters to Namespace as a Service
+
+OpenUnison's Namespace as a Service portal also supports onboarding and management of multiple clusters with the same self-service for namespaces.  There is no `ServiceAccount` token created or needed.  The satelite cluster runs a specialized impersonation proxy that trusts the control plane cluster.  The control plane OpenUnison generates a new, short lived JWT for each request.  When the control plane rotates its signing key, the satelites pick it up automatically.  This is similar to how GitHub Actions may interact with an AWS service without needing a static key.  Onboarding a satelite cluster for NaaS requires a single kubectl configuration file that has cluster-admin access to both clusters.  It also involves updating the satelite's values.yaml to add 
+
+```yaml
+openunison:
+  management_proxy:
+    enabled: true
+    external_admin_group: TremoloSecurity/Owners
+    host: k8smgmt.apps.212.2.245.93.nip.io
+```
+
+This is assuming you're using external groups in your control plane cluster.  If not, you can skip `external_admin_group`.  The `openunison.management_proxy.host` is what you want the host of your management proxy to be.  It should point to your satelite cluster's load balancer.

@@ -60,15 +60,17 @@ First, get the latest [default values.yaml](/assets/yaml/openunison-default.yaml
 | `network`      | This section describes how you will access OpenUnison and how OpenUnison will interact with your cluster | [Host Names and Networking](#host-names-and-networking) |
 | Authentication (***One*** of `activedirectory`, `oidc`, `github`, or `saml`) | How will OpenUnison authenticate users?  This is covered in detail next.  At least one option is required. | [Choosing an Identity Source](#choosing-an-identity-source) |
 
+***NOTE***: While not required, you should udpate the `k8s_cluster_name` value in your values.yaml to have a descriptive label for your cluster.
+
 Once you've chosen an identity source, return here to finish the installation.
 
 ### Deploy the Portal
 
 OpenUnison is deployed using a series of Helm Charts that cover different aspects of the deployment between configuration, integration with the API server, and the operator that manages certificates for you.  You can [deploy these charts manually](#manual-deployment), but the `ouctl` command makes this much easier.  First, download `ouctl` for the correct platform:
 
-* [Linux](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.4-linux)
-* [Windows](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.4-win.exe)
-* [MacOS](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.4-macos)
+* [Linux](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.5-linux)
+* [Windows](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.5-win.exe)
+* [MacOS](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.5-macos)
 
 Rename the downloaded file to `ouctl` (or `ouctl.exe` on windows).  Next, download the OpenUnison helm repo:
 
