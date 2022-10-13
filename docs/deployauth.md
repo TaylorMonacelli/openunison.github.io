@@ -68,9 +68,9 @@ Once you've chosen an identity source, return here to finish the installation.
 
 OpenUnison is deployed using a series of Helm Charts that cover different aspects of the deployment between configuration, integration with the API server, and the operator that manages certificates for you.  You can [deploy these charts manually](#manual-deployment), but the `ouctl` command makes this much easier.  First, download `ouctl` for the correct platform:
 
-* [Linux](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.7-linux)
-* [Windows](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.7-win.exe)
-* [MacOS](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.7-macos)
+* [Linux](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.8-linux)
+* [Windows](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.8-win.exe)
+* [MacOS](https://nexus.tremolo.io/repository/ouctl/ouctl-0.0.8-macos)
 
 Rename the downloaded file to `ouctl` (or `ouctl.exe` on windows).  Next, download the OpenUnison helm repo:
 
