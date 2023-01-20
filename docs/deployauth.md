@@ -1,22 +1,22 @@
 # Deploying The Authentication Portal
 
-The authentication portal is the best place to start.  This guide is a step-by-step explination of each of the components
+The authentication portal is the best place to start.  This guide is a step-by-step explanation of each of the components
 of the portal, what they do and how to configure them.  
 
 ## Upgrading from 1.0.23 and Earlier
 
-You can quickly [upgrade your existing OpenUnison deployment](../../upgrading) without making signifigant changes to your deployment.
+You can quickly [upgrade your existing OpenUnison deployment](../../upgrading) without making significant changes to your deployment.
 
 ## Deploying the Login Portal
 
-These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explination, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as suscintly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.  There are four steps to the deployment are:
+These are the step-by-step instructions for deploying OpenUnison with Kubernetes.  Each step provides some explanation, but with greater details linked out through this document.  The goal of this section is to give you the deployment instructions as succinctly as possible, with supporting details provided in reference sections.  OpenUnison can be deployed in multiple ways and its deployment will vary based on your cluster's configuration and needs.  There are four steps to the deployment are:
 
-| Deployment Phase | Description | Approximite Time |
+| Deployment Phase | Description | Approximate Time |
 | ---------------- | ----------- | ---------------- |
 | Pre-requisites   | Deploy the `Ingress` controller and dashboard. | This is dependent on how long it takes to deploy and validate your `Ingress` controller of choice and accompanying network infrastructure such as load balancers. |
-| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and generating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your pre-requisites are ready |
+| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and generating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your prerequisite are ready |
 | Deploy the Portal | Use the `ouctl` tool to deploy your portal | Less then 5 minutes |
-| *Optional* - Ingrating Your Cluster | If you're using OpenID Connect to integrate directly with your cluster, you'll need to configure your cluster to trust OpenUnison for authentication | Dependent on the Kubernetes distrobution, usually less then five minutes |
+| *Optional* - Integrating Your Cluster | If you're using OpenID Connect to integrate directly with your cluster, you'll need to configure your cluster to trust OpenUnison for authentication | Dependent on the Kubernetes distribution, usually less then five minutes |
 
 In any OpenUnison deployment the most amount of time spent is on getting the networking for your cluster working and getting the right authentication configuration for your identity store.  Once those are ready the rest of the deployment is very direct.
 
@@ -56,11 +56,11 @@ First, get the latest [default values.yaml](/assets/yaml/openunison-default.yaml
 
 | Values Section | Decision Points | Notes |
 | -------------- | --------------- | ----- |
-| `enable_impersonation` | Determine if you want to integrate your cluster directly with OpenUnison using OpenID Connect (`false`), or use OpenUnison's integrated impersonating reverse proxy when interacting with the API server (`true`).  In general, if you're working with an on-premesis cluster this will be `false`.  If you're using a hosted, or managed, cluster such as EKS or Civo this would by `true`.  |
+| `enable_impersonation` | Determine if you want to integrate your cluster directly with OpenUnison using OpenID Connect (`false`), or use OpenUnison's integrated impersonating reverse proxy when interacting with the API server (`true`).  In general, if you're working with an on-premises cluster this will be `false`.  If you're using a hosted, or managed, cluster such as EKS or Civo this would by `true`.  |
 | `network`      | This section describes how you will access OpenUnison and how OpenUnison will interact with your cluster | [Host Names and Networking](#host-names-and-networking) |
 | Authentication (***One*** of `activedirectory`, `oidc`, `github`, or `saml`) | How will OpenUnison authenticate users?  This is covered in detail next.  At least one option is required. | [Choosing an Identity Source](#choosing-an-identity-source) |
 
-***NOTE***: While not required, you should udpate the `k8s_cluster_name` value in your values.yaml to have a descriptive label for your cluster.
+***NOTE***: While not required, you should update the `k8s_cluster_name` value in your values.yaml to have a descriptive label for your cluster.
 
 Once you've chosen an identity source, return here to finish the installation.
 
@@ -123,19 +123,19 @@ If you're using the certificate generated by OpenUnison, you can retrieve it wit
 kubectl get secret ou-tls-certificate -n openunison -o json | jq -r '.data["tls.crt"]' | base64 -d > /path/to/ou-ca.pem
 ```
 
-Next, depending on your distrobution, update your cluster's command line parameters with the output for describing the above `ConfigMap`.
+Next, depending on your distribution, update your cluster's command line parameters with the output for describing the above `ConfigMap`.
 If you do not need to explicitly trust a certificate, skip `--oidc-ca-file`.  Once you're API servers restart, you should be able to use
 either the dashboard or the kubectl API.
 
 ## Choosing an Identity Source
 
 Before starting the deployment process, choose how you want to authenticate your users.  This is how OpenUnison will authenticate users,
-regardless of how OpenUnison integrates with your cluster.  Each authentication options includes pre-requisites that must be collected
+regardless of how OpenUnison integrates with your cluster.  Each authentication options includes prerequisite that must be collected
 before deployment.  Below are the available options:
 
 | Option | Notes |
 | ------ | ----- |
-| [Active Directory / LDAP](#active-directory-ldap) | Popular with enterprises and on-premesis deployments |
+| [Active Directory / LDAP](#active-directory-ldap) | Popular with enterprises and on-premises deployments |
 | [OpenID Connect](#openid-connect) | Most common integration method.  Useful with common providers such as Okta, Azure Active Directory, and Google. |
 | [GitHub](#github) | Useful for when you want to drive management based on your GitHub organizations and teams |
 | [SAML2](#saml2) | Most often used in legacy environments with Microsoft's Active Directory Federation Services (ADFS) |
@@ -158,7 +158,7 @@ domain OpenUnison can use SRV records to discover domain controllers
 3. The CA certificate for your domain controllers
 
 Your domain controllers **MUST** have TLS enabled and running.  Most Active Directory deployments will not allow authentication over
-a plaintext connection.
+a plain text connection.
 
 The following attributes must be available to OpenUnison:
 
@@ -179,7 +179,7 @@ Additionally, users may also have:
 Any of these attribute names can be changed by [customizing the MyVirtualDirectory configuration](../knowledgebase/customizingmyvd) used by 
 OpenUnison.
 
-Once all the pre-requisites have been gathered, uncomment the `activedirectory` section of your values.yaml and update accordingly:
+Once all the prerequisites have been gathered, uncomment the `activedirectory` section of your values.yaml and update accordingly:
 
 ```
 active_directory:
@@ -191,7 +191,7 @@ active_directory:
   srv_dns: "false"
 ```
 
-The detailed explination of each setting is below:
+The detailed explanation of each setting is below:
 
 | Property | Description |
 | -------- | ----------- |
@@ -247,7 +247,7 @@ To get started, you'll need:
 3. A client secret
 4. Claims from your identity provider
 
-The following are rquired for OpenUnison:
+The following are required for OpenUnison:
 
 | Attribute | Description | Example |
 | --------- | ----------- | ------- |
@@ -312,7 +312,7 @@ The secret file used with the `ouctl` command will contain the client secret.  I
 
 #### RBAC Bindings
 
-The `groups` claim will be passed to Kubernetes to support RBAC bindings.  You can carete `RoleBinding` and `ClusterRoleBinding` objects based on this attributes.  For
+The `groups` claim will be passed to Kubernetes to support RBAC bindings.  You can create `RoleBinding` and `ClusterRoleBinding` objects based on this attributes.  For
 example if you have a group called `k8s-admins` you can make those users with that group a cluster admin with:
 
 ```
@@ -357,13 +357,13 @@ You can specify multiple teams by commas.
 | Property | Description |
 | -------- | ----------- |
 | github.client_id | The client id from your OAuth2 application configuration |
-| github.teams | A comma separated list of authorized teams and organizations.  An organization is listed in the format `OrgName/` and a team in the formate `OrgName/TeamName` |
+| github.teams | A comma separated list of authorized teams and organizations.  An organization is listed in the format `OrgName/` and a team in the format `OrgName/TeamName` |
 
 The secret file used with the `ouctl` command will contain the GitHub client secret.  If configuring OpenUnison manually, add `GITHUB_SECRET_ID` to the `orchestra-secrets-source` `Secret` in the `openunison` namespace with the base64 encoded client secret from your OAuth app.
 
 #### RBAC Bindings
 
-Kubernetes will see your user's organizations and teams as groups.  To authorize users based on these groups, list them in your RBAC policies as groups with organizations being in the format `OrgName/` and teams being the format `OrgName/TeamName`.   To authorize members of team `TremnoloSecurity/Ownsers` to be cluster administrators, we create a `ClusterRoleBinding`:
+Kubernetes will see your user's organizations and teams as groups.  To authorize users based on these groups, list them in your RBAC policies as groups with organizations being in the format `OrgName/` and teams being the format `OrgName/TeamName`.   To authorize members of team `TremnoloSecurity/Owners` to be cluster administrators, we create a `ClusterRoleBinding`:
 
 ```
 kind: ClusterRoleBinding
@@ -492,7 +492,7 @@ It's not uncommon for development releases to not have a load balancer available
 | network.k8s_url | The URL for the Kubernetes API server | 
 | network.session_inactivity_timeout_seconds | The number of seconds of inactivity before the session is terminated, also the length of the refresh token's session |
 | network.createIngressCertificate | If true (default), the operator will create a self signed Ingress certificate.  Set to false if using an existing certificate or LetsEncrypt |
-| network.force_redirect_to_tls | If `true`, all traffic that reaches OpenUnison over http will be redirected to https.  Defaults to `true`.  Set to `false` when using an external TLS termination point, such as an istio sidecar proxy |
+| network.force_redirect_to_tls | If `true`, all traffic that reaches OpenUnison over HTTP will be redirected to HTTPS.  Defaults to `true`.  Set to `false` when using an external TLS termination point, such as an istio sidecar proxy |
 | network.ingress_type | The type of `Ingress` object to create.  `nginx` and [istio](https://openunison.github.io/ingresses/istio/) is supported |
 | network.ingress_annotations | Annotations to add to the `Ingress` object |
 | network.ingress_certificate | The certificate that the `Ingress` object should reference |
@@ -551,7 +551,7 @@ impersonation:
   jetstack_oidc_proxy_image: docker.io/tremolosecurity/kube-oidc-proxy:latest
   explicit_certificate_trust: true
 ```
-Here are the details configuration options for impesonation:
+Here are the details configuration options for impersonation:
 
 | Property | Description |
 | -------- | ----------- |
@@ -564,7 +564,7 @@ Here are the details configuration options for impesonation:
 | impersonation.resources.limits.memory | Maximum memory allocated to oidc proxy |
 | impersonation.resources.limits.cpu | Maximum CPU allocated to oidc proxy |
 
-The terminal in the dashboard will work without issue, since the dashboard uses websockets intead of SPDY.
+The terminal in the dashboard will work without issue, since the dashboard uses websockets instead of SPDY.
 
 ### OpenUnison Resource Configuration
 
@@ -622,7 +622,7 @@ openunison:
 
 The default implementation of OpenUnison authorizes anyone to authenticate to your cluster and leaves authorization to your RBAC objects.  This
 may not be the desired behavior if you know that only users in a certain group should have access to a cluster at all.  For example, if a
-cluster was built for the payments team, then develoeprs on the marketing application shouldn't have access to your cluster at all.
+cluster was built for the payments team, then developers on the marketing application shouldn't have access to your cluster at all.
 
 To authorize access to the portal, and your cluster, add the authorized groups to `openunison.az_groups` in your values.yaml.  The group names
 will be the same as how you would specify them in an RBAC binding. 
@@ -633,7 +633,7 @@ will be the same as how you would specify them in an RBAC binding.
 | Property | Description |
 | -------- | ----------- |
 | openunison.replicas | The number of OpenUnison replicas to run, defaults to 1 |
-| openunison.non_secret_data | Add additional non-secret configuration options, added to the `non_secret_data` secrtion of the `OpenUnison` object |
+| openunison.non_secret_data | Add additional non-secret configuration options, added to the `non_secret_data` section of the `OpenUnison` object |
 | openunison.secrets | Add additional keys from the `orchestra-secrets-source` `Secret` |
 | openunison.html.image | A custom NGINX image for the HTML frontend for OpenUnison's apis. |
 | openunison.enable_provisioning | If `true`, enables openunison's provisioning and audit database. |
@@ -649,7 +649,7 @@ OpenUnison can support the authentication for your entire environment, not just 
 
 #### Base Configuration
 
-The base configuration deploys the groundwork for running OpenUnison.  OpenUnison is a powerfull authentication and automation platform that can be used with all of your cluster applications and APIs.  We wanted to make this complexity as easy as possible to manage so we encoded most of the deployment and validation steps in automation technologies.  You'll need [helm version 3+](https://helm.sh/docs/intro/install/) to finish the deployment.
+The base configuration deploys the groundwork for running OpenUnison.  OpenUnison is a powerful authentication and automation platform that can be used with all of your cluster applications and APIs.  We wanted to make this complexity as easy as possible to manage so we encoded most of the deployment and validation steps in automation technologies.  You'll need [helm version 3+](https://helm.sh/docs/intro/install/) to finish the deployment.
 
 **Create the OpenUnison namespace:**
 
@@ -671,7 +671,7 @@ helm repo update
 
 **Install the operator**
 
-Next, install the operator.  The operator is responsble for generating OpenUnison's configuration and consolidating certificates and keys into a central keystore used by OpenUnison.  You can [customize the operator's chart](../documentation/operator) for your environment, but most deployments can use the defaults.
+Next, install the operator.  The operator is responsible for generating OpenUnison's configuration and consolidating certificates and keys into a central keystore used by OpenUnison.  You can [customize the operator's chart](../documentation/operator) for your environment, but most deployments can use the defaults.
 
 ```
 helm install openunison tremolo/openunison-operator --namespace openunison
