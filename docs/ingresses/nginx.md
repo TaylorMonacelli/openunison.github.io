@@ -12,4 +12,4 @@ If you don't have a load balancer, run the following to expose NGINX directly vi
 kubectl patch deployments ingress-nginx-controller -n ingress-nginx -p '{"spec":{"template":{"spec":{"containers":[{"name":"controller","ports":[{"containerPort":80,"hostPort":80,"protocol":"TCP"},{"containerPort":443,"hostPort":443,"protocol":"TCP"}]}]}}}}'
 ```
 
-[Return to deployment](../../deployauth#pre-requisites)
+[Return to deployment](../../deployauth#prerequisites)

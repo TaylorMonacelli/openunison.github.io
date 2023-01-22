@@ -13,14 +13,14 @@ These are the step-by-step instructions for deploying OpenUnison with Kubernetes
 
 | Deployment Phase | Description | Approximate Time |
 | ---------------- | ----------- | ---------------- |
-| Pre-requisites   | Deploy the `Ingress` controller and dashboard. | This is dependent on how long it takes to deploy and validate your `Ingress` controller of choice and accompanying network infrastructure such as load balancers. |
-| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and generating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your prerequisite are ready |
+| Prerequisites    | Deploy the `Ingress` controller and dashboard. | This is dependent on how long it takes to deploy and validate your `Ingress` controller of choice and accompanying network infrastructure such as load balancers. |
+| Site Specific Configuration | This is where you'll configure OpenUnison for your authentication source and for your infrastructure by configuring a Helm chart values.yaml and generating your configuration `Secret` | Generally 5 - 30 minutes depending on if all your prerequisites are ready |
 | Deploy the Portal | Use the `ouctl` tool to deploy your portal | Less then 5 minutes |
 | *Optional* - Integrating Your Cluster | If you're using OpenID Connect to integrate directly with your cluster, you'll need to configure your cluster to trust OpenUnison for authentication | Dependent on the Kubernetes distribution, usually less then five minutes |
 
 In any OpenUnison deployment the most amount of time spent is on getting the networking for your cluster working and getting the right authentication configuration for your identity store.  Once those are ready the rest of the deployment is very direct.
 
-### Pre-requisites
+### Prerequisites
 
 **Ingress Controller**
 
@@ -130,7 +130,7 @@ either the dashboard or the kubectl API.
 ## Choosing an Identity Source
 
 Before starting the deployment process, choose how you want to authenticate your users.  This is how OpenUnison will authenticate users,
-regardless of how OpenUnison integrates with your cluster.  Each authentication options includes prerequisite that must be collected
+regardless of how OpenUnison integrates with your cluster.  Each authentication option includes prerequisites that must be collected
 before deployment.  Below are the available options:
 
 | Option | Notes |
@@ -158,7 +158,7 @@ domain OpenUnison can use SRV records to discover domain controllers
 3. The CA certificate for your domain controllers
 
 Your domain controllers **MUST** have TLS enabled and running.  Most Active Directory deployments will not allow authentication over
-a plain text connection.
+a plaintext connection.
 
 The following attributes must be available to OpenUnison:
 

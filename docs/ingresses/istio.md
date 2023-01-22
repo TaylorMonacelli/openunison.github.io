@@ -61,7 +61,7 @@ type: Opaque
 
 Then, in your values.yaml set `impersonation.ca_secret_name` to the name of the `Secret` you just created with your CA certificate in it. This will let the kube-oidc-proxy trust OpenUnison's identity provider.
 
-[Return to deployment](../../deployauth#pre-requisites)
+[Return to deployment](../../deployauth#prerequisites)
 
 ### Connection Refused or Reset
 
